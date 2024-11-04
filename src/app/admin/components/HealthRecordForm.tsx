@@ -63,16 +63,15 @@ const HealthRecordForm = ({ resident }) => {
 
     try {
       await addRecord(payload)
-      setTimeout(() => {
-        Swal.fire({
-          icon: "success",
-          title: "Health Record Created",
-          text: "Health record has been created successfully.",
-          confirmButtonColor: "#3085d6",
-          confirmButtonText: "OK",
-        })
-        router.refresh()
-      }, 1000)
+      router.refresh()
+
+      Swal.fire({
+        icon: "success",
+        title: "Health Record Created",
+        text: "Health record has been created successfully.",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "OK",
+      })
     } catch (error) {
       setMessage("Failed to create health record. Please try again.")
       console.error("Failed to create health record:", error)
