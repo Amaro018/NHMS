@@ -47,7 +47,7 @@ const Residentpage = () => {
         >
           <Box sx={style}>
             <div className="p-2">
-              <ResidentForm />
+              <ResidentForm resident={undefined} />
             </div>
           </Box>
         </Modal>

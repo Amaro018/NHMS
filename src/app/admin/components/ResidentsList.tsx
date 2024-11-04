@@ -40,6 +40,13 @@ export default function ResidentList() {
   const [currentPage, setCurrentPage] = React.useState(1)
   const itemsPerPage = 10
 
+  // Filter data based on search term
+  const filteredData = residents.filter(
+    (item) =>
+      item.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.lastName.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   const handleOpen = (resident) => {
     setSelectedResident(resident)
     setOpen(true)
@@ -154,7 +161,7 @@ export default function ResidentList() {
               className="px-4 py-2 border-b cursor-pointer border-slate-600"
               onClick={() => handleSort("address")}
             >
-              Address
+              Purok
             </th>
             <th className="px-4 py-2 border-b border-slate-600">Contact Number</th>
             <th className="px-4 py-2 border-b border-slate-600">Health Status</th>
@@ -206,12 +213,12 @@ export default function ResidentList() {
                 >
                   Update
                 </button>
-                <button
+                {/* <button
                   className="bg-green-600 p-2 rounded-md text-white ml-2 hover:bg-green-500"
                   onClick={() => handleOpenRecord(resident)}
                 >
                   Add Record
-                </button>
+                </button> */}
                 <button
                   className="bg-red-600 p-2 rounded-md text-white ml-2 hover:bg-red-500"
                   onClick={() => confirmDelete(resident.id)}
@@ -230,11 +237,11 @@ export default function ResidentList() {
         </Box>
       </Modal>
 
-      <Modal open={openRecord} onClose={handleCloseRecord}>
+      {/* <Modal open={openRecord} onClose={handleCloseRecord}>
         <Box sx={style}>
           <HealthRecordForm resident={selectedResident} />
         </Box>
-      </Modal>
+      </Modal> */}
 
       <div className="flex justify-center p-2">
         <Stack spacing={2}>
@@ -248,6 +255,8 @@ export default function ResidentList() {
           />
         </Stack>
       </div>
+
+      <div>{filteredData.length === 0 && <p>No residents found.</p>}</div>
     </div>
   )
 }

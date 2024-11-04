@@ -34,7 +34,7 @@ const Residentpage = () => {
     <div className="flex flex-col p-16 text-black bg-white dark:text-white dark:bg-black h-screen">
       <div className="flex justify-between">
         <Sidebar />
-        <button
+        {/* <button
           className="bg-slate-600 p-4 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white dark:bg-white dark:text-black"
           onClick={handleOpen}
         >
@@ -51,7 +51,7 @@ const Residentpage = () => {
               <ResidentForm />
             </div>
           </Box>
-        </Modal>
+        </Modal> */}
       </div>
 
       <div className="flex flex-col p-4 bg-slate-600 rounded-t-md mt-4">

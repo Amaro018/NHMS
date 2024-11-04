@@ -2,6 +2,7 @@ import { useMutation } from "@blitzjs/rpc"
 import createHealthRecord from "../mutations/createHealthRecord"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Swal from "sweetalert2"
 
 const HealthRecordForm = ({ resident }) => {
   const router = useRouter()
@@ -62,9 +63,15 @@ const HealthRecordForm = ({ resident }) => {
 
     try {
       await addRecord(payload)
-      setMessage("Health record created successfully!") // Success feedback
       setTimeout(() => {
-        router.refresh() // Refresh or handle close as needed
+        Swal.fire({
+          icon: "success",
+          title: "Health Record Created",
+          text: "Health record has been created successfully.",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "OK",
+        })
+        router.refresh()
       }, 1000)
     } catch (error) {
       setMessage("Failed to create health record. Please try again.")

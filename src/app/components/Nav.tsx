@@ -11,7 +11,7 @@ export default async function Nav() {
   const currentUser = await invoke(getCurrentUser, null)
   return (
     <nav>
-      <div className="flex justify-between py-4 px-16 bg-slate-600 items-center">
+      <div className="flex justify-between py-4 px-16 bg-slate-600 items-center text-white">
         <div className="flex gap-4 items-center">
           <img src="/logo3.png" alt="Logo" width="150" height="150" />
         </div>
