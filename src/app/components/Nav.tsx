@@ -17,9 +17,11 @@ export default async function Nav() {
         </div>
         <ul className="flex gap-4">
           <li>
-            <Link href={"/"}>Home</Link>
+            <Link href={"/"} className="hover:text-green-300">
+              Home
+            </Link>
           </li>
-          <li>About</li>
+          <li className="hover:text-green-300">About</li>
           <li>
             <div>
               {currentUser ? (
@@ -27,8 +29,8 @@ export default async function Nav() {
                   <>
                     <div className="flex flex-row items-center gap-4">
                       <div className="flex flex-row gap-4">
-                        <Link href={"/admin/dashboard"}>
-                          <p>Admin Dashboard</p>
+                        <Link href={"/admin/dashboard"} className="hover:text-green-300">
+                          <p>Dashboard</p>
                         </Link>
                       </div>
                       <LogoutButton />
@@ -37,18 +39,20 @@ export default async function Nav() {
                 ) : (
                   <div>
                     <p>Home</p>
-                    <LogoutButton />
+                    <p className="hover:text-green-300">
+                      <LogoutButton />
+                    </p>
                   </div>
                   // Display the user role if not ADMIN
                 )
               ) : (
                 <div className="flex gap-4">
-                  <Link href="/signup">
+                  {/* <Link href="/signup">
                     <strong>Sign Up</strong>
                   </Link>
                   <Link href="/login">
                     <strong>Login</strong>
-                  </Link>
+                  </Link> */}
                 </div>
               )}
             </div>

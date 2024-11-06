@@ -30,7 +30,7 @@ export default function Sidebar() {
           { text: "Home", href: "/admin/dashboard", icon: "bx bx-home-heart" },
           { text: "Residents", href: "/admin/resident", icon: "bx bxs-user-detail" },
           { text: "Health Records", href: "/admin/health-records", icon: "bx bx-heart" },
-          { text: "Checkup", href: "/drafts", icon: "bx bx-check-shield" },
+          { text: "Projects", href: "/admin/health-projects", icon: "bx bx-check-shield" },
         ].map((item, index) => (
           <ListItem key={item.text} disablePadding>
             <Link href={item.href} passHref className="w-full hover:bg-slate-600">
@@ -65,12 +65,12 @@ export default function Sidebar() {
   )
 
   return (
-    <div className="">
+    <div className="fixed left-0 top-28">
       <button
         onClick={toggleDrawer(true)}
-        className="bg-slate-600 p-4 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white dark:bg-white dark:text-black dark:hover:bg-slate-500"
+        className="bg-slate-600 p-4 rounded-r-md outline-2 shadow-lg hover:bg-slate-500 text-white dark:bg-white dark:text-black dark:hover:bg-slate-500"
       >
-        Open Sidebar
+        <ChevronRightIcon />
       </button>
       <Drawer open={open} onClose={toggleDrawer(false)}>
         {DrawerList}

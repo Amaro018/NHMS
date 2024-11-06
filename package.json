@@ -1,5 +1,5 @@
 {
-  "name": "testAuth",
+  "name": "NHMS",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -35,10 +35,12 @@
     "@prisma/client": "5.4.2",
     "blitz": "2.1.3",
     "boxicons": "2.1.4",
+    "chart.js": "4.4.6",
     "formik": "2.4.6",
     "next": "14.2.15",
     "prisma": "5.4.2",
     "react": "18.2.0",
+    "react-chartjs-2": "5.2.0",
     "react-dom": "18.2.0",
     "react-spinners": "0.14.1",
     "secure-password": "4.0.0",

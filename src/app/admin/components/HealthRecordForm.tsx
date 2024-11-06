@@ -39,7 +39,7 @@ const HealthRecordForm = ({ resident }) => {
     }
   }
 
-  const getHealthStatus = (bmi) => {
+  const getHealthStatus = (bmi: string | number) => {
     bmi = parseFloat(bmi)
     if (bmi < 18.5) return "Underweight"
     if (bmi >= 18.5 && bmi <= 24.9) return "Normal weight"
@@ -64,7 +64,6 @@ const HealthRecordForm = ({ resident }) => {
     try {
       await addRecord(payload)
       router.refresh()
-
       Swal.fire({
         icon: "success",
         title: "Health Record Created",

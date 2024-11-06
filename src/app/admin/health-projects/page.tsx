@@ -1,14 +1,8 @@
 "use client"
 import Sidebar from "../components/Sidebar"
-import ResidentForm from "../components/ResidentsForm"
-import ResidentList from "../components/ResidentsList"
-
 import * as React from "react"
-import Box from "@mui/material/Box"
-import Button from "@mui/material/Button"
-import Typography from "@mui/material/Typography"
-import Modal from "@mui/material/Modal"
-import { BorderColor } from "@mui/icons-material"
+import { Box, Modal } from "@mui/material"
+import HealthProjectForm from "../components/HealthProjects/healthProjectForm"
 
 const style = {
   position: "absolute",
@@ -22,13 +16,10 @@ const style = {
   p: 4,
   borderRadius: "10px",
 }
-
-const Residentpage = () => {
+export default function HealthProjects() {
   const [open, setOpen] = React.useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
-  // Only authenticated users can access this page
-
   return (
     <div className="flex flex-col p-16 text-black bg-white dark:text-white dark:bg-black h-screen">
       <div className="flex justify-end">
@@ -37,7 +28,7 @@ const Residentpage = () => {
           className="bg-slate-600 p-4 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white dark:bg-white dark:text-black"
           onClick={handleOpen}
         >
-          Add Resident
+          Add Project
         </button>
         <Modal
           open={open}
@@ -47,21 +38,14 @@ const Residentpage = () => {
         >
           <Box sx={style}>
             <div className="p-2">
-              <ResidentForm resident={undefined} />
+              <HealthProjectForm />
             </div>
           </Box>
         </Modal>
       </div>
-
       <div className="flex flex-col p-4 bg-slate-600 rounded-t-md mt-4">
-        <p className="text-2xl text-white font-bold">NAGSIYA RESIDENTS</p>
-      </div>
-
-      <div>
-        <ResidentList />
+        <p className="text-2xl text-white font-bold">HEALTH PROJECTS</p>
       </div>
     </div>
   )
 }
-
-export default Residentpage
