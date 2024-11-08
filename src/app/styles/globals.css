@@ -2,3 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 @import "boxicons/css/boxicons.min.css";
+
+.swal-high-zindex {
+  z-index: 9999 !important;
+}
+
+.swal2-popup {
+  z-index: 9999 !important;
+}
+
+.swal2-container {
+  z-index: 9999 !important;
+}
+
+.swal2-modal {
+  z-index: 9999 !important;
+}
+
+.swal2-title {
+  z-index: 9999 !important;
+}
+
+.swal2-content {
+  z-index: 9999 !important;
+}
+
+.modal-pages {
+  z-index: 1;
+}

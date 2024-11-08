@@ -28,7 +28,7 @@ const styleViewing = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 1000,
+  width: 1500,
   bgcolor: "background.paper",
   border: "2px solid #000",
   boxShadow: 24,
@@ -40,6 +40,8 @@ export default function HealthRecordList() {
   const [residents, { refetch }] = useQuery(getResidents, null)
   const [records] = useQuery(getRecords, null)
   const [open, setOpen] = React.useState(false)
+
+  const { isLoading } = useQuery(getResidents, null)
 
   const [openViewRecords, setOpenViewRecords] = React.useState(false)
   const [selectedResident, setSelectedResident] = React.useState(null)
@@ -81,8 +83,9 @@ export default function HealthRecordList() {
     currentPage * itemsPerPage
   )
 
-  const handlePageChange = (event, value) => {
+  const handlePageChange = async (event, value) => {
     setCurrentPage(value)
+    await refetch()
   }
 
   const handleOpen = (resident) => {
@@ -100,13 +103,17 @@ export default function HealthRecordList() {
     setOpenViewRecords(true)
   }
 
-  const handleCloseViewRecords = () => {
+  const handleCloseViewRecords = async () => {
     setOpenViewRecords(false)
     setSelectedResident(null)
+    await refetch()
   }
 
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
   return (
-    <div className="overflow-x-auto py-4">
+    <div className="overflow-x-auto py-4 modal-pages">
       <div className="py-4">
         <input
           type="text"

@@ -1,22 +1,23 @@
+import * as React from "react"
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider"
+import { DatePicker } from "@mui/x-date-pickers/DatePicker"
+import { TextField } from "@mui/material"
+import dayjs, { Dayjs } from "dayjs"
+
 export default function HealthProjectForm() {
+  const [value, setValue] = React.useState<Dayjs | null>(dayjs("2022-04-17"))
   return (
     <>
       <main>
         {" "}
         <form className="flex flex-col space-y-4 p-4">
-          <input
-            type="text"
-            name="firstName"
-            placeholder="First Name"
-            className="p-2 border rounded"
-            required
-          />
-          <input
-            type="text"
-            name="middleName"
-            placeholder="Middle Name"
-            className="p-2 border rounded"
-          />
+          <TextField id="outlined-basic" label="Project Name" variant="outlined" />
+          <TextField id="outlined-multiline-flexible" label="Description" multiline maxRows={5} />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker />
+            <DatePicker />
+          </LocalizationProvider>
           <input
             type="text"
             name="lastName"

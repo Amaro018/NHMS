@@ -16,6 +16,9 @@ const HealthRecordForm = ({ resident }) => {
     height: "",
     bmi: "",
     healthStatus: "",
+    systolic: "",
+    diastolic: "",
+    bloodPressureStatus: "",
   })
   const [message, setMessage] = useState("") // For feedback message
   const [addRecord] = useMutation(createHealthRecord)
@@ -37,6 +40,16 @@ const HealthRecordForm = ({ resident }) => {
         }))
       }
     }
+
+    if (name === "systolic" || name === "diastolic") {
+      const systolic = name === "systolic" ? Number(value) : Number(formData.systolic)
+      const diastolic = name === "diastolic" ? Number(value) : Number(formData.diastolic)
+
+      setFormData((prev) => ({
+        ...prev,
+        bloodPressureStatus: getBloodPressureStatus(systolic, diastolic),
+      }))
+    }
   }
 
   const getHealthStatus = (bmi: string | number) => {
@@ -49,9 +62,19 @@ const HealthRecordForm = ({ resident }) => {
     if (bmi >= 40) return "Class III Obese"
   }
 
+  const getBloodPressureStatus = (systolic, diastolic) => {
+    if (systolic < 120 && diastolic < 80) return "Normal"
+    if (systolic >= 120 && systolic <= 129 && diastolic < 80) return "Elevated"
+    if ((systolic >= 130 && systolic <= 139) || (diastolic >= 80 && diastolic <= 89))
+      return "Hypertension Stage 1"
+    if (systolic >= 140 || diastolic >= 90) return "Hypertension Stage 2"
+    if (systolic >= 180 || diastolic >= 120) return "Hypertensive Crisis"
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Data to be submitted
     const payload = {
       residentId: resident.id,
       dateOfCheckup: new Date(formData.dateOfCheckup),
@@ -59,21 +82,50 @@ const HealthRecordForm = ({ resident }) => {
       height: Number(formData.height),
       bmi: parseFloat(formData.bmi),
       healthStatus: formData.healthStatus,
+      systolic: Number(formData.systolic),
+      diastolic: Number(formData.diastolic),
+      bloodPressureStatus: formData.bloodPressureStatus,
     }
 
-    try {
-      await addRecord(payload)
-      router.refresh()
-      Swal.fire({
-        icon: "success",
-        title: "Health Record Created",
-        text: "Health record has been created successfully.",
-        confirmButtonColor: "#3085d6",
-        confirmButtonText: "OK",
-      })
-    } catch (error) {
-      setMessage("Failed to create health record. Please try again.")
-      console.error("Failed to create health record:", error)
+    // Confirm data is correct
+    const confirmResult = await Swal.fire({
+      icon: "question",
+      title: "Confirm Submission",
+      text: "Are you sure all information is correct?",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, submit",
+      cancelButtonText: "Cancel",
+    })
+
+    if (confirmResult.isConfirmed) {
+      try {
+        // Add the record
+        const response = await addRecord(payload)
+
+        if (response) {
+          Swal.fire({
+            icon: "success",
+            title: "Health Record Created",
+            text: "Health record has been created successfully.",
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "OK",
+          })
+          router.refresh() // Refresh to fetch latest data
+        }
+      } catch (error) {
+        // Handle any errors
+        setMessage("Failed to create health record. Please try again.")
+        console.error("Failed to create health record:", error)
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to create health record. Please try again.",
+          confirmButtonColor: "#d33",
+          confirmButtonText: "OK",
+        })
+      }
     }
   }
 
@@ -128,10 +180,35 @@ const HealthRecordForm = ({ resident }) => {
         readOnly
         className="p-2 border rounded"
       />
+      <input
+        type="number"
+        name="systolic"
+        placeholder="Systolic (mmHg)"
+        value={formData.systolic}
+        onChange={handleChange}
+        required
+        className="p-2 border rounded"
+      />
+      <input
+        type="number"
+        name="diastolic"
+        placeholder="Diastolic (mmHg)"
+        value={formData.diastolic}
+        onChange={handleChange}
+        required
+        className="p-2 border rounded"
+      />
+      <input
+        type="text"
+        name="bloodPressureStatus"
+        placeholder="Blood Pressure Status"
+        value={formData.bloodPressureStatus}
+        readOnly
+        className="p-2 border rounded"
+      />
       <button type="submit" className="p-2 bg-blue-600 text-white rounded">
         Save Health Record
       </button>
-      {message && <p className="text-center mt-2">{message}</p>}
     </form>
   )
 }

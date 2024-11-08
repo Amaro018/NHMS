@@ -75,15 +75,18 @@ model Resident {
 }
 
 model HealthRecord {
-  id            Int      @id @default(autoincrement())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  residentId    Int
-  dateOfCheckup DateTime
-  weight        Float
-  height        Float
-  bmi           Float
-  healthStatus  String
+  id                  Int      @id @default(autoincrement())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  residentId          Int
+  dateOfCheckup       DateTime
+  weight              Float
+  height              Float
+  bmi                 Float
+  healthStatus        String
+  systolic            Int?
+  diastolic           Int?
+  bloodPressureStatus String?
 
   resident Resident @relation("ResidentHealthRecords", fields: [residentId], references: [id])
 }
