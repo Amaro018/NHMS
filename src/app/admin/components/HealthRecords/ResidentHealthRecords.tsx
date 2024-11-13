@@ -101,7 +101,11 @@ const ResidentHealthRecords = ({ resident }) => {
                   {records.map((record) => (
                     <tr key={record.id} className="border-b dark:border-neutral-500">
                       <td className="px-6 py-4">
-                        {new Date(record.dateOfCheckup).toLocaleDateString()}
+                        {new Intl.DateTimeFormat(undefined, {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }).format(new Date(record.dateOfCheckup))}
                       </td>
                       <td className="px-6 py-4">{record.weight}</td>
                       <td className="px-6 py-4">{record.height}</td>
