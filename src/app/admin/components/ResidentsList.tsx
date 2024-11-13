@@ -37,15 +37,12 @@ export default function ResidentList() {
   const [searchTerm, setSearchTerm] = React.useState("")
   const [sortConfig, setSortConfig] = React.useState({ key: "name", direction: "asc" })
 
+  // Add new state for filtering by gender and Purok
+  const [selectedGender, setSelectedGender] = React.useState("")
+  const [selectedPurok, setSelectedPurok] = React.useState("")
+
   const [currentPage, setCurrentPage] = React.useState(1)
   const itemsPerPage = 10
-
-  // Filter data based on search term
-  const filteredData = residents.filter(
-    (item) =>
-      item.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.lastName.toLowerCase().includes(searchTerm.toLowerCase())
-  )
 
   const handleOpen = (resident) => {
     setSelectedResident(resident)
@@ -65,16 +62,6 @@ export default function ResidentList() {
     } catch (error) {
       swal("Error", "Failed to delete resident. Please try again.", "error")
     }
-  }
-
-  const handleOpenRecord = (resident: Resident) => {
-    setSelectedResident(resident)
-    setOpenRecord(true)
-  }
-
-  const handleCloseRecord = () => {
-    setOpenRecord(false)
-    setSelectedResident(null)
   }
 
   const confirmDelete = (id) => {
@@ -97,25 +84,27 @@ export default function ResidentList() {
     setSortConfig({ key, direction })
   }
 
-  const sortedResidents = React.useMemo(() => {
+  // Filter by search term, gender, and Purok
+  const filteredResidents = React.useMemo(() => {
     return residents
-      .filter((resident) =>
-        (resident.firstName + " " + resident.lastName)
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-      )
+      .filter((resident) => {
+        const fullName = `${resident.firstName} ${resident.middleName} ${resident.lastName}`
+        return (
+          fullName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          (selectedGender ? resident.gender === selectedGender : true) &&
+          (selectedPurok ? resident.address === selectedPurok : true)
+        )
+      })
       .sort((a, b) => {
         if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === "asc" ? -1 : 1
         if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === "asc" ? 1 : -1
         return 0
       })
-  }, [residents, sortConfig, searchTerm])
+  }, [residents, searchTerm, selectedGender, selectedPurok, sortConfig])
 
-  // Calculate total pages
-  const totalPages = Math.ceil(sortedResidents.length / itemsPerPage)
+  const totalPages = Math.ceil(filteredResidents.length / itemsPerPage)
 
-  // Get the residents for the current page
-  const paginatedResidents = sortedResidents.slice(
+  const paginatedResidents = filteredResidents.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   )
@@ -126,14 +115,35 @@ export default function ResidentList() {
 
   return (
     <div className="overflow-x-auto">
-      <div className="py-4">
+      <div className="py-4 flex space-x-4">
         <input
           type="text"
           placeholder="Search by Last or First name"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className=" p-2 border rounded"
+          className="p-2 border rounded"
         />
+        <select
+          value={selectedGender}
+          onChange={(e) => setSelectedGender(e.target.value)}
+          className="p-2 border rounded"
+        >
+          <option value="">All Genders</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+        <select
+          value={selectedPurok}
+          onChange={(e) => setSelectedPurok(e.target.value)}
+          className="p-2 border rounded"
+        >
+          <option value="">All Puroks</option>
+          <option value="Purok 1">Purok 1</option>
+          <option value="Purok 2">Purok 2</option>
+          <option value="Purok 3">Purok 3</option>
+          <option value="Purok 4">Purok 4</option>
+        </select>
       </div>
 
       <table className="min-w-full rounded-md border border-slate-600">
@@ -164,7 +174,7 @@ export default function ResidentList() {
               Purok
             </th>
             <th className="px-4 py-2 border-b border-slate-600">Contact Number</th>
-            <th className="px-4 py-2 border-b border-slate-600">Health Status</th>
+            <th className="px-4 py-2 border-b border-slate-600">Last Record</th>
             <th className="px-4 py-2 border-b border-slate-600">Action</th>
           </tr>
         </thead>
@@ -172,7 +182,7 @@ export default function ResidentList() {
           {paginatedResidents.map((resident) => (
             <tr key={resident.id}>
               <td className="px-4 py-2 border-b border-slate-600">
-                {resident.lastName + ", " + resident.middleName + " " + resident.firstName}
+                {resident.firstName + " " + resident.middleName + " " + resident.lastName}
               </td>
               <td className="px-4 py-2 border-b border-slate-600">
                 {new Date(resident.birthDate).toLocaleDateString("en-US", {
@@ -213,12 +223,6 @@ export default function ResidentList() {
                 >
                   Update
                 </button>
-                {/* <button
-                  className="bg-green-600 p-2 rounded-md text-white ml-2 hover:bg-green-500"
-                  onClick={() => handleOpenRecord(resident)}
-                >
-                  Add Record
-                </button> */}
                 <button
                   className="bg-red-600 p-2 rounded-md text-white ml-2 hover:bg-red-500"
                   onClick={() => confirmDelete(resident.id)}
@@ -237,12 +241,6 @@ export default function ResidentList() {
         </Box>
       </Modal>
 
-      {/* <Modal open={openRecord} onClose={handleCloseRecord}>
-        <Box sx={style}>
-          <HealthRecordForm resident={selectedResident} />
-        </Box>
-      </Modal> */}
-
       <div className="flex justify-center p-2">
         <Stack spacing={2}>
           <Pagination
@@ -256,7 +254,7 @@ export default function ResidentList() {
         </Stack>
       </div>
 
-      <div>{filteredData.length === 0 && <p>No residents found.</p>}</div>
+      <div>{filteredResidents.length === 0 && <p>No residents found.</p>}</div>
     </div>
   )
 }

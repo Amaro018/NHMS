@@ -3,8 +3,9 @@ import createHealthRecord from "../mutations/createHealthRecord"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Swal from "sweetalert2"
+import { TextField } from "@mui/material"
 
-const HealthRecordForm = ({ resident }) => {
+const HealthRecordForm = ({ resident, onSuccess }) => {
   const router = useRouter()
   const [formData, setFormData] = useState({
     residentId: resident?.id || "", // Use optional chaining to avoid errors
@@ -63,6 +64,7 @@ const HealthRecordForm = ({ resident }) => {
   }
 
   const getBloodPressureStatus = (systolic, diastolic) => {
+    if (systolic < 90 && diastolic < 60) return "hypotension"
     if (systolic < 120 && diastolic < 80) return "Normal"
     if (systolic >= 120 && systolic <= 129 && diastolic < 80) return "Elevated"
     if ((systolic >= 130 && systolic <= 139) || (diastolic >= 80 && diastolic <= 89))
@@ -105,6 +107,7 @@ const HealthRecordForm = ({ resident }) => {
         const response = await addRecord(payload)
 
         if (response) {
+          onSuccess()
           Swal.fire({
             icon: "success",
             title: "Health Record Created",
@@ -135,7 +138,9 @@ const HealthRecordForm = ({ resident }) => {
         Add Health Record for{" "}
         {formData.firstName + " " + formData.middleName + " " + formData.lastName}
       </h2>
-      <label htmlFor="dateOfCheckup">CHECK UP DATE :</label>
+      <label htmlFor="dateOfCheckup" className="font-bold uppercase">
+        CHECK UP DATE :
+      </label>
       <input
         type="date"
         name="dateOfCheckup"
@@ -143,69 +148,105 @@ const HealthRecordForm = ({ resident }) => {
         onChange={handleChange}
         required
         className="p-2 border rounded"
+        defaultValue={new Date().toISOString().split("T")[0]}
+        max={new Date().toISOString().split("T")[0]}
       />
-      <input
-        type="number"
-        name="weight"
-        placeholder="Weight (kg)"
-        value={formData.weight}
-        onChange={handleChange}
+      <p className="font-bold uppercase">Vital Sign Status</p>
+      <div className="flex space-x-4">
+        <TextField
+          required
+          id="outlined-required"
+          type="number"
+          label="Weight (kg)"
+          name="weight"
+          placeholder="Weight (kg)"
+          value={formData.weight}
+          onChange={handleChange}
+          className="p-2 border rounded"
+          InputProps={{ inputProps: { min: 1 } }}
+          fullWidth
+        />
+
+        <TextField
+          required
+          id="outlined-required"
+          type="number"
+          name="height"
+          placeholder="Height (cm)"
+          value={formData.height}
+          onChange={handleChange}
+          label="Height (cm)"
+          className="p-2 border rounded"
+          InputProps={{ inputProps: { min: 1 } }}
+          fullWidth
+        />
+      </div>
+
+      <TextField
         required
-        className="p-2 border rounded"
-      />
-      <input
-        type="number"
-        name="height"
-        placeholder="Height (cm)"
-        value={formData.height}
-        onChange={handleChange}
-        required
-        className="p-2 border rounded"
-      />
-      <input
+        id="outlined-required"
         type="text"
         name="bmi"
-        placeholder="BMI"
         value={formData.bmi}
-        readOnly
+        aria-readonly
+        disabled
+        label="BMI"
+        onChange={handleChange}
         className="p-2 border rounded"
       />
-      <input
-        type="text"
+      <TextField
+        required
+        id="outlined-required"
         name="healthStatus"
         placeholder="Health Status"
         value={formData.healthStatus}
         onChange={handleChange}
-        required
-        readOnly
-        className="p-2 border rounded"
+        label="Health Status"
+        aria-readonly
+        disabled
+        className="p-2 border rounded "
       />
-      <input
-        type="number"
-        name="systolic"
-        placeholder="Systolic (mmHg)"
-        value={formData.systolic}
-        onChange={handleChange}
+      <p className="font-bold uppercase">Blood Pressure Status</p>
+      <div className="flex space-x-4">
+        <TextField
+          required
+          id="outlined-required"
+          type="number"
+          name="systolic"
+          value={formData.systolic}
+          onChange={handleChange}
+          label="Systolic (mmHg)"
+          className="p-2 border rounded"
+          fullWidth
+        />
+
+        <TextField
+          required
+          id="outlined-required"
+          type="number"
+          name="diastolic"
+          value={formData.diastolic}
+          onChange={handleChange}
+          label="Diastolic (mmHg)"
+          className="p-2 border rounded"
+          fullWidth
+        />
+      </div>
+
+      <TextField
         required
-        className="p-2 border rounded"
-      />
-      <input
-        type="number"
-        name="diastolic"
-        placeholder="Diastolic (mmHg)"
-        value={formData.diastolic}
-        onChange={handleChange}
-        required
-        className="p-2 border rounded"
-      />
-      <input
+        id="outlined-required"
         type="text"
         name="bloodPressureStatus"
         placeholder="Blood Pressure Status"
         value={formData.bloodPressureStatus}
-        readOnly
+        onChange={handleChange}
+        label="Blood Pressure Status"
+        aria-readonly
+        disabled
         className="p-2 border rounded"
       />
+
       <button type="submit" className="p-2 bg-blue-600 text-white rounded">
         Save Health Record
       </button>

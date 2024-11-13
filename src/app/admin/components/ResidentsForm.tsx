@@ -3,6 +3,8 @@ import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import createResident from "../mutations/createResident"
 import updateResident from "../mutations/updateResident" // Make sure you have an update mutation
+import { S } from "@blitzjs/auth/dist/index-0ecbee46"
+import Swal from "sweetalert2"
 
 const ResidentForm = ({ resident }) => {
   const router = useRouter()
@@ -51,7 +53,11 @@ const ResidentForm = ({ resident }) => {
           ...formData,
           birthDate: new Date(formData.birthDate),
         })
-        alert("Resident updated successfully!")
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Resident updated successfully!",
+        })
       } else {
         // Otherwise, create a new resident
         await invoke(createResident, {
