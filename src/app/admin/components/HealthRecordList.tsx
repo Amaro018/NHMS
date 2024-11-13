@@ -1,12 +1,15 @@
+import React, { useRef } from "react"
+import { useReactToPrint } from "react-to-print"
 import { useQuery } from "@blitzjs/rpc"
 import getResidents from "../queries/getResidents"
 import getRecords from "../queries/getRecords"
-import * as React from "react"
+
 import Box from "@mui/material/Box"
 import Modal from "@mui/material/Modal"
 import HealthRecordForm from "./HealthRecordForm"
 import ResidentHealthRecords from "./HealthRecords/ResidentHealthRecords"
 import { Pagination, Stack } from "@mui/material"
+import PrintIcon from "@mui/icons-material/Print"
 
 const style = {
   position: "absolute",
@@ -47,6 +50,36 @@ export default function HealthRecordList() {
   const itemsPerPage = 10
   const [selectedHealthStatus, setSelectedHealthStatus] = React.useState("")
   const [selectedbloodPressureStatus, setSelectedbloodPressureStatus] = React.useState("")
+
+  const tableRef = useRef()
+
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank")
+    const printContent = tableRef.current.innerHTML
+    printWindow.document.open()
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>HEALTH RECORDS OF BRGY NAGSIYA</title>
+          <style>
+            /* General styling for print view */
+            body { font-family: Arial, sans-serif; font-size: 12px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 4px solid #ddd; padding: 14px; }
+            th { background-color: #f2f2f2; }
+  
+            /* Hide elements with the 'no-print' class */
+            .no-print { display: none !important; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          ${printContent}
+          
+        </body>
+      </html>
+    `)
+    printWindow.document.close()
+  }
 
   const handleSort = (key) => {
     let direction = "asc"
@@ -121,144 +154,151 @@ export default function HealthRecordList() {
     await refetch()
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
   return (
     <div className="overflow-x-auto py-4 modal-pages">
-      <div className="py-4 flex space-x-4">
-        <input
-          type="text"
-          placeholder="Search by Last or First name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-2 border rounded"
-        />
-        <select
-          value={selectedbloodPressureStatus}
-          onChange={(e) => setSelectedbloodPressureStatus(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="">All Status</option>
-          <option value="Hypotension">Hypotension</option>
-          <option value="Normal">Normal</option>
-          <option value="Elevated">Elevated</option>
-          <option value="Hypertension Stage 1">Hypertension Stage 1</option>
-          <option value="Hypertension Stage 2">Hypertension Stage 2</option>
-          <option value="Hypertensive Crisis">Hypertensive Crisis</option>
-        </select>
-        <select
-          value={selectedHealthStatus}
-          onChange={(e) => setSelectedHealthStatus(e.target.value)}
-          className="p-2 border rounded"
-        >
-          <option value="">All Status</option>
-          <option value="Normal weight">Normal weight</option>
-          <option value="Underweight">Underweight</option>
-          <option value="Overweight">Overweight</option>
-          <option value="Class I Obese">Class I Obese</option>
-          <option value="Class II Obese">Class II obese</option>
-          <option value="Class III Obese">Class III obese</option>
-        </select>
+      <div className="flex justify-between">
+        <div className="py-4 flex space-x-4">
+          <input
+            type="text"
+            placeholder="Search by Last or First name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="p-2 border rounded"
+          />
+          <select
+            value={selectedbloodPressureStatus}
+            onChange={(e) => setSelectedbloodPressureStatus(e.target.value)}
+            className="p-2 border rounded"
+          >
+            <option value="">All Status</option>
+            <option value="Hypotension">Hypotension</option>
+            <option value="Normal">Normal</option>
+            <option value="Elevated">Elevated</option>
+            <option value="Hypertension Stage 1">Hypertension Stage 1</option>
+            <option value="Hypertension Stage 2">Hypertension Stage 2</option>
+            <option value="Hypertensive Crisis">Hypertensive Crisis</option>
+          </select>
+          <select
+            value={selectedHealthStatus}
+            onChange={(e) => setSelectedHealthStatus(e.target.value)}
+            className="p-2 border rounded"
+          >
+            <option value="">All Status</option>
+            <option value="Normal weight">Normal weight</option>
+            <option value="Underweight">Underweight</option>
+            <option value="Overweight">Overweight</option>
+            <option value="Class I Obese">Class I Obese</option>
+            <option value="Class II Obese">Class II obese</option>
+            <option value="Class III Obese">Class III obese</option>
+          </select>
+        </div>
+        <div>
+          <button
+            className="bg-slate-600 py-4 px-8 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white"
+            onClick={handlePrint}
+          >
+            Print <PrintIcon />
+          </button>
+        </div>
       </div>
+      <div ref={tableRef}>
+        <table className="min-w-full rounded-md border border-slate-600">
+          <thead>
+            <tr>
+              <th className="py-2 border-b cursor-pointer border-slate-600">
+                Name<i className="bx bxs-sort-alt" onClick={() => handleSort("name")}></i>
+              </th>
+              <th className="py-2 border-b cursor-pointer border-slate-600">Age</th>
+              <th className="py-2 border-b cursor-pointer border-slate-600">Height</th>
+              <th className="py-2 border-b cursor-pointer border-slate-600">Weight</th>
+              <th className="py-2 border-b border-slate-600">BMI</th>
+              <th className="py-2 border-b border-slate-600">Health Status</th>
+              <th className="py-2 border-b border-slate-600">BP Status</th>
+              <th className="py-2 border-b border-slate-600">Last Checkup</th>
+              <th className="py-2 border-b border-slate-600 no-print">Action</th>
+            </tr>
+          </thead>
+          <tbody className="text-center capitalize">
+            {paginatedResidents.map((resident) => {
+              const residentRecords = records
+                .filter((record) => record.residentId === resident.id)
+                .sort((a, b) => new Date(b.dateOfCheckup) - new Date(a.dateOfCheckup))
 
-      <table className="min-w-full rounded-md border border-slate-600">
-        <thead>
-          <tr>
-            <th className="py-2 border-b cursor-pointer border-slate-600">
-              Name<i className="bx bxs-sort-alt" onClick={() => handleSort("name")}></i>
-            </th>
-            <th className="py-2 border-b cursor-pointer border-slate-600">Age</th>
-            <th className="py-2 border-b cursor-pointer border-slate-600">Height</th>
-            <th className="py-2 border-b cursor-pointer border-slate-600">Weight</th>
-            <th className="py-2 border-b border-slate-600">BMI</th>
-            <th className="py-2 border-b border-slate-600">Health Status</th>
-            <th className="py-2 border-b border-slate-600">BP Status</th>
-            <th className="py-2 border-b border-slate-600">Last Checkup</th>
-            <th className="py-2 border-b border-slate-600">Action</th>
-          </tr>
-        </thead>
-        <tbody className="text-center capitalize">
-          {paginatedResidents.map((resident) => {
-            const residentRecords = records
-              .filter((record) => record.residentId === resident.id)
-              .sort((a, b) => new Date(b.dateOfCheckup) - new Date(a.dateOfCheckup))
+              const latestRecord = residentRecords[0]
 
-            const latestRecord = residentRecords[0]
+              return (
+                <tr key={resident.id}>
+                  <td className="px-4 py-2 border-b border-slate-600">
+                    {resident.firstName} {resident.middleName} {resident.lastName}
+                  </td>
+                  <td className="px-4 py-2 border-b border-slate-600">
+                    {(() => {
+                      const today = new Date()
+                      const birthDate = new Date(resident.birthDate)
+                      let age = today.getFullYear() - birthDate.getFullYear()
+                      const monthDifference = today.getMonth() - birthDate.getMonth()
 
-            return (
-              <tr key={resident.id}>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {resident.firstName} {resident.middleName} {resident.lastName}
-                </td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {(() => {
-                    const today = new Date()
-                    const birthDate = new Date(resident.birthDate)
-                    let age = today.getFullYear() - birthDate.getFullYear()
-                    const monthDifference = today.getMonth() - birthDate.getMonth()
-
-                    if (
-                      monthDifference < 0 ||
-                      (monthDifference === 0 && today.getDate() < birthDate.getDate())
-                    ) {
-                      age--
-                    }
-                    return age
-                  })()}
-                </td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {latestRecord ? `${latestRecord.height} cm` : "N/A"}
-                </td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {latestRecord ? `${latestRecord.weight} kg` : "N/A"}
-                </td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {latestRecord ? latestRecord.bmi : "N/A"}
-                </td>
-                <td
-                  className={`px-4 py-2 border-b border-slate-600 ${getHealthStatusClass(
-                    latestRecord?.healthStatus
-                  )}`}
-                >
-                  {latestRecord ? latestRecord.healthStatus : "N/A"}
-                </td>
-                <td
-                  className={`px-4 py-2 border-b border-slate-600 ${getBPStatusClass(
-                    latestRecord?.bloodPressureStatus
-                  )}`}
-                >
-                  {latestRecord ? latestRecord.bloodPressureStatus : "N/A"}
-                </td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {latestRecord
-                    ? new Date(latestRecord.dateOfCheckup).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })
-                    : "N/A"}
-                </td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  <button
-                    className="bg-blue-600 p-2 rounded-md text-white hover:bg-blue-500"
-                    onClick={() => handleOpenViewRecords(resident)}
+                      if (
+                        monthDifference < 0 ||
+                        (monthDifference === 0 && today.getDate() < birthDate.getDate())
+                      ) {
+                        age--
+                      }
+                      return age
+                    })()}
+                  </td>
+                  <td className="px-4 py-2 border-b border-slate-600">
+                    {latestRecord ? `${latestRecord.height} cm` : "N/A"}
+                  </td>
+                  <td className="px-4 py-2 border-b border-slate-600">
+                    {latestRecord ? `${latestRecord.weight} kg` : "N/A"}
+                  </td>
+                  <td className="px-4 py-2 border-b border-slate-600">
+                    {latestRecord ? latestRecord.bmi : "N/A"}
+                  </td>
+                  <td
+                    className={`px-4 py-2 border-b border-slate-600 ${getHealthStatusClass(
+                      latestRecord?.healthStatus
+                    )}`}
                   >
-                    View Records
-                  </button>
-                  <button
-                    className="bg-green-600 p-2 rounded-md text-white ml-2 hover:bg-green-500"
-                    onClick={() => handleOpen(resident)}
+                    {latestRecord ? latestRecord.healthStatus : "N/A"}
+                  </td>
+                  <td
+                    className={`px-4 py-2 border-b border-slate-600 ${getBPStatusClass(
+                      latestRecord?.bloodPressureStatus
+                    )}`}
                   >
-                    Add Record
-                  </button>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+                    {latestRecord ? latestRecord.bloodPressureStatus : "N/A"}
+                  </td>
+                  <td className="px-4 py-2 border-b border-slate-600">
+                    {latestRecord
+                      ? new Date(latestRecord.dateOfCheckup).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "N/A"}
+                  </td>
+                  <td className="px-4 py-2 border-b border-slate-600 no-print">
+                    <button
+                      className="bg-blue-600 p-2 rounded-md text-white hover:bg-blue-500"
+                      onClick={() => handleOpenViewRecords(resident)}
+                    >
+                      View Records
+                    </button>
+                    <button
+                      className="bg-green-600 p-2 rounded-md text-white ml-2 hover:bg-green-500"
+                      onClick={() => handleOpen(resident)}
+                    >
+                      Add Record
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
 
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
