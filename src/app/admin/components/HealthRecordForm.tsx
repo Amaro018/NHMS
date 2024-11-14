@@ -24,7 +24,7 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
   const [message, setMessage] = useState("") // For feedback message
   const [addRecord] = useMutation(createHealthRecord)
 
-  const handleChange = (e) => {
+  const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
 
@@ -63,7 +63,7 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
     if (bmi >= 40) return "Class III Obese"
   }
 
-  const getBloodPressureStatus = (systolic, diastolic) => {
+  const getBloodPressureStatus = (systolic: number, diastolic: number) => {
     if (systolic < 90 && diastolic < 60) return "hypotension"
     else if (systolic < 120 && diastolic < 80) return "Normal"
     else if (systolic >= 120 && systolic <= 129 && diastolic < 80) return "Elevated"

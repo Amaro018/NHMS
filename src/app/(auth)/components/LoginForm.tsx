@@ -20,50 +20,62 @@ export const LoginForm = (props: LoginFormProps) => {
   const next = useSearchParams()?.get("next")
   return (
     <>
-      <h1>Login</h1>
-      <div className=" flex justify-center p-4">
-        <Form
-          submitText="Login"
-          schema={Login}
-          initialValues={{ email: "", password: "" }}
-          onSubmit={async (values) => {
-            try {
-              await loginMutation(values)
-              router.refresh()
-              if (next) {
-                router.push(next as Route)
-              } else {
-                router.push("/admin/dashboard")
-                console.log("redirecting to dashboard")
-              }
-            } catch (error: any) {
-              if (error instanceof AuthenticationError) {
-                return { [FORM_ERROR]: "Sorry, those credentials are invalid" }
-              } else {
-                return {
-                  [FORM_ERROR]:
-                    "Sorry, we had an unexpected error. Please try again. - " + error.toString(),
-                }
-              }
-            }
-          }}
-        >
-          <LabeledTextField name="email" label="Email" placeholder="Email" />
-          <LabeledTextField
-            name="password"
-            label="Password"
-            placeholder="Password"
-            type="password"
-          />
+      <div className="flex justify-center text-center mt-16">
+        <div className="w-1/4 bg-slate-600 py-8 rounded-t-lg">
+          <h1 className="text-3xl text-white uppercase font-mono font-bold">Admin Login</h1>
+        </div>
+      </div>
+      <div className="font-bold flex justify-center">
+        <div className="w-1/4 p-8 border border-slate-600 rounded-b-lg  flex flex-col justify-center text-center items-center">
           <div>
-            <Link href={"/forgot-password"}>Forgot your password?</Link>
+            <Form
+              schema={Login}
+              initialValues={{ email: "", password: "" }}
+              onSubmit={async (values) => {
+                try {
+                  await loginMutation(values)
+                  router.refresh()
+                  if (next) {
+                    router.push(next as Route)
+                  } else {
+                    router.push("/admin/dashboard")
+                    router.refresh()
+                    console.log("redirecting to dashboard")
+                  }
+                } catch (error: any) {
+                  if (error instanceof AuthenticationError) {
+                    return { [FORM_ERROR]: "Sorry, those credentials are invalid" }
+                  } else {
+                    return {
+                      [FORM_ERROR]:
+                        "Sorry, we had an unexpected error. Please try again. - " +
+                        error.toString(),
+                    }
+                  }
+                }
+              }}
+            >
+              <LabeledTextField name="email" label="Email" placeholder="Email" />
+              <LabeledTextField
+                name="password"
+                label="Password"
+                placeholder="Password"
+                type="password"
+              />
+              <div>
+                <Link href={"/forgot-password"}>Forgot your password?</Link>
+              </div>
+              <button className="w-full bg-slate-600 p-4 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white">
+                Login
+              </button>
+            </Form>
           </div>
-        </Form>
+        </div>
       </div>
 
-      <div style={{ marginTop: "1rem" }}>
+      {/* <div style={{ marginTop: "1rem" }}>
         Or <Link href="/signup">Sign Up</Link>
-      </div>
+      </div> */}
     </>
   )
 }
