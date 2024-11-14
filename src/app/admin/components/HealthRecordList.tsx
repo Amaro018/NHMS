@@ -47,7 +47,7 @@ export default function HealthRecordList() {
   const [searchTerm, setSearchTerm] = React.useState("")
   const [sortConfig, setSortConfig] = React.useState({ key: "name", direction: "asc" })
   const [currentPage, setCurrentPage] = React.useState(1)
-  const itemsPerPage = 10
+  const [itemsPerPage, setItemsPerPage] = React.useState(10)
   const [selectedHealthStatus, setSelectedHealthStatus] = React.useState("")
   const [selectedbloodPressureStatus, setSelectedbloodPressureStatus] = React.useState("")
 
@@ -154,9 +154,14 @@ export default function HealthRecordList() {
     await refetch()
   }
 
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(Number(event.target.value))
+    setCurrentPage(1) // Reset to first page on items per page change
+  }
+
   return (
     <div className="overflow-x-auto py-4 modal-pages">
-      <div className="flex justify-between">
+      <div className="flex justify-between py-2">
         <div className="py-4 flex space-x-4">
           <input
             type="text"
@@ -192,9 +197,23 @@ export default function HealthRecordList() {
             <option value="Class III Obese">Class III obese</option>
           </select>
         </div>
-        <div>
+        <div className="flex flex-row gap-4">
+          <div className="flex items-center gap-4">
+            <label htmlFor="itemsPerPage">Show : </label>
+            <select
+              value={itemsPerPage}
+              onChange={handleItemsPerPageChange}
+              className="p-2 border rounded"
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={30}>30</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
           <button
-            className="bg-slate-600 py-4 px-8 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white"
+            className="bg-slate-600 px-8 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white"
             onClick={handlePrint}
           >
             Print <PrintIcon />

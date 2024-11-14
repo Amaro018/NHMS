@@ -164,7 +164,6 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
           placeholder="Weight (kg)"
           value={formData.weight}
           onChange={handleChange}
-          className="p-2 border rounded"
           InputProps={{ inputProps: { min: 1 } }}
           fullWidth
         />
@@ -178,7 +177,6 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
           value={formData.height}
           onChange={handleChange}
           label="Height (cm)"
-          className="p-2 border rounded"
           InputProps={{ inputProps: { min: 1 } }}
           fullWidth
         />
@@ -194,7 +192,6 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
         disabled
         label="BMI"
         onChange={handleChange}
-        className="p-2 border rounded"
       />
       <TextField
         required
@@ -206,7 +203,6 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
         label="Health Status"
         aria-readonly
         disabled
-        className="p-2 border rounded "
       />
       <p className="font-bold uppercase">Blood Pressure Status</p>
       <div className="flex space-x-4">
@@ -218,7 +214,6 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
           value={formData.systolic}
           onChange={handleChange}
           label="Systolic (mmHg)"
-          className="p-2 border rounded"
           fullWidth
         />
 
@@ -230,7 +225,6 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
           value={formData.diastolic}
           onChange={handleChange}
           label="Diastolic (mmHg)"
-          className="p-2 border rounded"
           fullWidth
         />
       </div>
@@ -246,7 +240,6 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
         label="Blood Pressure Status"
         aria-readonly
         disabled
-        className="p-2 border rounded"
       />
 
       <button type="submit" className="p-2 bg-blue-600 text-white rounded">

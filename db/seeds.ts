@@ -30,7 +30,7 @@ const seed = async () => {
       lastName: "Doe",
       birthDate: new Date("1990-01-01"),
       gender: "Male",
-      address: "123 Main St",
+      address: "Purok 1",
       contactNumber: "1234567890",
     },
     {
@@ -39,7 +39,7 @@ const seed = async () => {
       lastName: "Smith",
       birthDate: new Date("1985-02-15"),
       gender: "Female",
-      address: "456 Oak Ave",
+      address: "Purok 2",
       contactNumber: "2345678901",
     },
     {
@@ -48,7 +48,7 @@ const seed = async () => {
       lastName: "Johnson",
       birthDate: new Date("1992-03-10"),
       gender: "Female",
-      address: "789 Pine Rd",
+      address: "Purok 3",
       contactNumber: "3456789012",
     },
     {
@@ -57,7 +57,7 @@ const seed = async () => {
       lastName: "Brown",
       birthDate: new Date("1988-04-20"),
       gender: "Male",
-      address: "101 Maple Ln",
+      address: "Purok 4",
       contactNumber: "4567890123",
     },
     {
@@ -66,7 +66,7 @@ const seed = async () => {
       lastName: "Davis",
       birthDate: new Date("1995-05-25"),
       gender: "Male",
-      address: "202 Birch Blvd",
+      address: "Purok 1",
       contactNumber: "5678901234",
     },
     {
@@ -75,7 +75,7 @@ const seed = async () => {
       lastName: "Wilson",
       birthDate: new Date("1991-06-30"),
       gender: "Female",
-      address: "303 Cedar Ct",
+      address: "Purok 2",
       contactNumber: "6789012345",
     },
     {
@@ -84,7 +84,7 @@ const seed = async () => {
       lastName: "Taylor",
       birthDate: new Date("1986-07-04"),
       gender: "Male",
-      address: "404 Elm St",
+      address: "Purok 3",
       contactNumber: "7890123456",
     },
     {
@@ -93,7 +93,7 @@ const seed = async () => {
       lastName: "Martinez",
       birthDate: new Date("1993-08-18"),
       gender: "Female",
-      address: "505 Spruce Ave",
+      address: "Purok 4",
       contactNumber: "8901234567",
     },
     {
@@ -102,7 +102,7 @@ const seed = async () => {
       lastName: "Anderson",
       birthDate: new Date("1989-09-12"),
       gender: "Male",
-      address: "606 Willow Dr",
+      address: "Purok 1",
       contactNumber: "9012345678",
     },
     {
@@ -111,7 +111,7 @@ const seed = async () => {
       lastName: "Thomas",
       birthDate: new Date("1994-10-22"),
       gender: "Female",
-      address: "707 Fir Pl",
+      address: "Purok 2",
       contactNumber: "0123456789",
     },
     {
@@ -120,7 +120,7 @@ const seed = async () => {
       lastName: "Brown",
       birthDate: new Date("1987-11-12"),
       gender: "Male",
-      address: "808 Cypress St",
+      address: "Purok 3",
       contactNumber: "1112345678",
     },
     {
@@ -129,7 +129,7 @@ const seed = async () => {
       lastName: "Harris",
       birthDate: new Date("1990-12-15"),
       gender: "Male",
-      address: "909 Walnut Ave",
+      address: "Purok 4",
       contactNumber: "1223456789",
     },
     {
@@ -138,7 +138,7 @@ const seed = async () => {
       lastName: "Lewis",
       birthDate: new Date("1991-01-20"),
       gender: "Female",
-      address: "1010 Juniper St",
+      address: "Purok 1",
       contactNumber: "1334567890",
     },
     {
@@ -147,7 +147,7 @@ const seed = async () => {
       lastName: "Walker",
       birthDate: new Date("1988-02-10"),
       gender: "Male",
-      address: "1111 Magnolia Dr",
+      address: "Purok 2",
       contactNumber: "1445678901",
     },
     {
@@ -156,7 +156,7 @@ const seed = async () => {
       lastName: "Martinez",
       birthDate: new Date("1993-03-15"),
       gender: "Female",
-      address: "1212 Spruce St",
+      address: "Purok 3",
       contactNumber: "1556789012",
     },
     {
@@ -165,7 +165,7 @@ const seed = async () => {
       lastName: "Johnson",
       birthDate: new Date("1994-04-20"),
       gender: "Male",
-      address: "1313 Maple Ave",
+      address: "Purok 4",
       contactNumber: "1667890123",
     },
   ]

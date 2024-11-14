@@ -12,6 +12,7 @@ import swal from "sweetalert"
 import { Resident } from "@prisma/client"
 import Pagination from "@mui/material/Pagination"
 import Stack from "@mui/material/Stack"
+import { TextField } from "@mui/material"
 
 const style = {
   position: "absolute",
@@ -42,7 +43,7 @@ export default function ResidentList() {
   const [selectedPurok, setSelectedPurok] = React.useState("")
 
   const [currentPage, setCurrentPage] = React.useState(1)
-  const itemsPerPage = 10
+  const [itemsPerPage, setItemsPerPage] = React.useState(10)
 
   const handleOpen = (resident) => {
     setSelectedResident(resident)
@@ -113,15 +114,20 @@ export default function ResidentList() {
     setCurrentPage(value)
   }
 
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(Number(event.target.value))
+    setCurrentPage(1) // Reset to first page on items per page change
+  }
+
   return (
     <div className="overflow-x-auto">
       <div className="py-4 flex space-x-4">
-        <input
-          type="text"
-          placeholder="Search by Last or First name"
+        <TextField
+          label="SEARCH RESIDENT"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-2 border rounded"
+          variant="outlined"
+          size="small"
         />
         <select
           value={selectedGender}
@@ -144,6 +150,20 @@ export default function ResidentList() {
           <option value="Purok 3">Purok 3</option>
           <option value="Purok 4">Purok 4</option>
         </select>
+        <div className="flex items-center gap-4">
+          <label htmlFor="itemsPerPage">Show : </label>
+          <select
+            value={itemsPerPage}
+            onChange={handleItemsPerPageChange}
+            className="p-2 border rounded"
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={30}>30</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
       </div>
 
       <table className="min-w-full rounded-md border border-slate-600">
