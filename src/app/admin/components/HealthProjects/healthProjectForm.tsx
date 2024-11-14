@@ -6,7 +6,7 @@ import { TextField } from "@mui/material"
 import dayjs, { Dayjs } from "dayjs"
 
 export default function HealthProjectForm() {
-  const [value, setValue] = React.useState<Dayjs | null>(dayjs("2022-04-17"))
+  const [value, setValue] = React.useState(dayjs())
   return (
     <>
       <main>
@@ -15,8 +15,8 @@ export default function HealthProjectForm() {
           <TextField id="outlined-basic" label="Project Name" variant="outlined" />
           <TextField id="outlined-multiline-flexible" label="Description" multiline maxRows={5} />
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker />
-            <DatePicker />
+            <DatePicker minDate={dayjs()} />
+            <DatePicker minDate={dayjs()} />
           </LocalizationProvider>
           <input
             type="text"
