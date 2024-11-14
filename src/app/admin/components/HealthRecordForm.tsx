@@ -65,12 +65,14 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
 
   const getBloodPressureStatus = (systolic, diastolic) => {
     if (systolic < 90 && diastolic < 60) return "hypotension"
-    if (systolic < 120 && diastolic < 80) return "Normal"
-    if (systolic >= 120 && systolic <= 129 && diastolic < 80) return "Elevated"
-    if ((systolic >= 130 && systolic <= 139) || (diastolic >= 80 && diastolic <= 89))
+    else if (systolic < 120 && diastolic < 80) return "Normal"
+    else if (systolic >= 120 && systolic <= 129 && diastolic < 80) return "Elevated"
+    else if ((systolic >= 130 && systolic <= 139) || (diastolic >= 80 && diastolic <= 89))
       return "Hypertension Stage 1"
-    if (systolic >= 140 || diastolic >= 90) return "Hypertension Stage 2"
-    if (systolic >= 180 || diastolic >= 120) return "Hypertensive Crisis"
+    else if ((systolic >= 140 && systolic < 180) || (diastolic >= 90 && diastolic < 120))
+      return "Hypertension Stage 2"
+    else if (systolic >= 180 || diastolic >= 120) return "Hypertensive Crisis"
+    else return ""
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
