@@ -4,7 +4,7 @@ const Dashboard = () => {
   // Only authenticated users can access this page
 
   return (
-    <div className="flex flex-col p-16 text-black bg-white dark:text-white dark:bg-black h-screen">
+    <div className="flex flex-col px-16 text-black bg-white dark:text-white dark:bg-black h-screen">
       <Sidebar />
       <div className="flex flex-col p-4 bg-slate-600 rounded-t-md mt-4">
         <p className="text-2xl text-white font-bold">ADMIN DASHBOARD</p>

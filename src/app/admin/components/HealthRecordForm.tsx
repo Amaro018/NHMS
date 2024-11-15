@@ -64,7 +64,7 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
   }
 
   const getBloodPressureStatus = (systolic: number, diastolic: number) => {
-    if (systolic < 90 && diastolic < 60) return "hypotension"
+    if (systolic < 90 && diastolic < 60) return "Hypotension"
     else if (systolic < 120 && diastolic < 80) return "Normal"
     else if (systolic >= 120 && systolic <= 129 && diastolic < 80) return "Elevated"
     else if ((systolic >= 130 && systolic <= 139) || (diastolic >= 80 && diastolic <= 89))

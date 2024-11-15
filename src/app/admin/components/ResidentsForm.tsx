@@ -56,7 +56,7 @@ const ResidentForm = ({ resident }) => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Resident updated successfully!",
+          text: "Resident Updated Successfully!",
         })
       } else {
         // Otherwise, create a new resident
@@ -64,7 +64,11 @@ const ResidentForm = ({ resident }) => {
           ...formData,
           birthDate: new Date(formData.birthDate),
         })
-        alert("Resident created successfully!")
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Resident Added Successfully!",
+        })
       }
 
       router.push("/admin/resident")

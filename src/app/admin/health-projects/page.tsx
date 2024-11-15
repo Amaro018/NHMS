@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar"
 import * as React from "react"
 import { Box, Modal } from "@mui/material"
 import HealthProjectForm from "../components/HealthProjects/healthProjectForm"
+import HealthProjectList from "../components/HealthProjects/HealthProjectList"
 
 const style = {
   position: "absolute",
@@ -21,7 +22,7 @@ export default function HealthProjects() {
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
   return (
-    <div className="flex flex-col p-16 text-black bg-white dark:text-white dark:bg-black h-screen">
+    <div className="flex flex-col px-16 text-black bg-white dark:text-white dark:bg-black h-screen">
       <div className="flex justify-end">
         <Sidebar />
         <button
@@ -38,13 +39,16 @@ export default function HealthProjects() {
         >
           <Box sx={style}>
             <div className="p-2">
-              <HealthProjectForm />
+              <HealthProjectForm project={undefined} />
             </div>
           </Box>
         </Modal>
       </div>
       <div className="flex flex-col p-4 bg-slate-600 rounded-t-md mt-4">
-        <p className="text-2xl text-white font-bold">HEALTH PROJECTS</p>
+        <p className="text-2xl text-white font-bold">HEALTH PROJECTS LIST</p>
+      </div>
+      <div>
+        <HealthProjectList />
       </div>
     </div>
   )

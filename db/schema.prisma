@@ -101,12 +101,18 @@ model Checkup {
 }
 
 model HealthProject {
-  id                 Int      @id @default(autoincrement())
-  projectName        String
-  description        String?
-  startDate          DateTime
-  endDate            DateTime
-  targetHealthStatus String
+  id             Int            @id @default(autoincrement())
+  projectName    String
+  description    String?
+  startDate      DateTime
+  endDate        DateTime
+  healthStatuses HealthStatus[] @relation("ProjectHealthStatuses") // New many-to-many relation
+}
+
+model HealthStatus {
+  id         Int             @id @default(autoincrement())
+  statusName String          @unique
+  projects   HealthProject[] @relation("ProjectHealthStatuses") // Relation back to HealthProject
 }
 
 // NOTE: It's highly recommended to use an enum for the token type

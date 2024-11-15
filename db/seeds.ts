@@ -182,6 +182,26 @@ const seed = async () => {
     }
   }
 
+  const healthStatuses = [
+    { statusName: "Normal" },
+    { statusName: "Hypotension" },
+    { statusName: "Underweight" },
+    { statusName: "Elevated" },
+    { statusName: "Overweight" },
+    { statusName: "Hypertension Stage 1" },
+    { statusName: "Class I Obese" },
+    { statusName: "Hypertension Stage 2" },
+    { statusName: "Class II Obese" },
+    { statusName: "Hypertensive Crisis" },
+    { statusName: "Class III Obese" },
+    { statusName: "All Residents" },
+  ]
+
+  await db.healthStatus.createMany({
+    data: healthStatuses,
+    skipDuplicates: true, // Prevents errors if records already exist
+  })
+
   console.log("Seed completed!")
 }
 

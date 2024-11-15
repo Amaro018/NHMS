@@ -31,7 +31,7 @@ const Residentpage = () => {
   const handleClose = () => setOpen(false)
 
   return (
-    <div className="flex flex-col p-16 text-black bg-white dark:text-white dark:bg-black h-screen">
+    <div className="flex flex-col px-16 text-black bg-white dark:text-white dark:bg-black h-screen">
       <div className="flex justify-between">
         <Sidebar />
       </div>
