@@ -1,10 +1,10 @@
 import db from "db"
 
 export default async function getResidents() {
-  return await db.resident.findMany({
+  const residents = await db.resident.findMany({
     orderBy: { createdAt: "desc" },
-    include: {
-      HealthRecord: true, // Include health records for each resident
-    },
+    include: { HealthRecord: true },
   })
+  console.log("Fetched Residents:", residents)
+  return residents
 }

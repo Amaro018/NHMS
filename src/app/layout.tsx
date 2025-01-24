@@ -1,10 +1,10 @@
 import "./styles/globals.css"
 import { BlitzProvider } from "./blitz-client"
-import { Inter } from "next/font/google"
+// import { Inter } from "next/font/google"
 import Nav from "./components/Nav"
 import Footer from "./components/Footer"
 
-const inter = Inter({ subsets: ["latin"] })
+//const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: { title: "NHMS", template: "%s – NHMS" },
@@ -14,7 +14,7 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <BlitzProvider>
           <Nav />
           <>{children}</>

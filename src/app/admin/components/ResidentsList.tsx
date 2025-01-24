@@ -78,6 +78,7 @@ export default function ResidentList() {
   }
 
   const handleOpen = (resident) => {
+    console.log(resident)
     setSelectedResident(resident)
     setOpen(true)
   }
@@ -209,7 +210,7 @@ export default function ResidentList() {
           <div>
             <button
               className="bg-slate-600 p-4 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white dark:bg-white dark:text-black"
-              onClick={handleOpen}
+              onClick={() => handleOpen(null)}
             >
               Add Resident
             </button>
@@ -259,7 +260,7 @@ export default function ResidentList() {
             {paginatedResidents.map((resident) => (
               <tr key={resident.id}>
                 <td className="px-4 py-2 border-b border-slate-600">
-                  {resident.firstName + " " + resident.middleName + " " + resident.lastName}
+                  {resident.lastName + ", " + resident.firstName + " " + resident.middleName}
                 </td>
                 <td className="px-4 py-2 border-b border-slate-600">
                   {new Date(resident.birthDate).toLocaleDateString("en-US", {

@@ -5,6 +5,9 @@ import styles from "./styles/Home.module.css"
 import getCurrentUser from "./users/queries/getCurrentUser"
 import Footer from "./components/Footer"
 import PieChart from "./components/pieChart"
+import { Bar } from "react-chartjs-2"
+import BarChart from "./components/barChart"
+import Nav from "./components/Nav"
 
 export default async function Home() {
   const currentUser = await invoke(getCurrentUser, null)
@@ -56,6 +59,9 @@ export default async function Home() {
             </div>
           </main>
         </div>
+        {/* <div className="w-full">
+          <BarChart />
+        </div> */}
         <div className="bottom-0 bg-slate-600 p-4">
           <Footer />
         </div>

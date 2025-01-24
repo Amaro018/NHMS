@@ -1,5 +1,5 @@
 "use client"
-import { FormControl, InputLabel, MenuItem, NativeSelect, Select } from "@mui/material"
+import { FormControl, InputLabel, NativeSelect } from "@mui/material"
 import { useEffect, useRef, useState } from "react"
 import { Chart } from "chart.js/auto"
 import { useQuery } from "@blitzjs/rpc"
@@ -9,7 +9,6 @@ export default function PieChart() {
   const chartRef = useRef(null)
   const [records] = useQuery(getResidentHealthRecords, {})
 
-  // Get unique years from the records
   const uniqueYears = [
     ...new Set(records.map((record) => new Date(record.dateOfCheckup).getFullYear())),
   ].sort((a, b) => b - a)
@@ -29,7 +28,6 @@ export default function PieChart() {
     })
     .filter(Boolean)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const healthStatusCounts = {
     normalWeight: 0,
     underweight: 0,
@@ -52,6 +50,13 @@ export default function PieChart() {
 
   useEffect(() => {
     const ctx = chartRef.current.getContext("2d")
+
+    if (latestRecords.length === 0) {
+      ctx.font = "20px Arial"
+      ctx.textAlign = "center"
+      ctx.fillText("No records available", ctx.canvas.width / 2, ctx.canvas.height / 2)
+      return
+    }
 
     const pieChart = new Chart(ctx, {
       type: "pie",
@@ -118,7 +123,7 @@ export default function PieChart() {
     return () => {
       pieChart.destroy()
     }
-  }, [healthStatusCounts])
+  }, [healthStatusCounts, latestRecords])
 
   return (
     <div className="w-full h-[700px] flex flex-col items-center p-8 mb-10">
@@ -138,7 +143,6 @@ export default function PieChart() {
           >
             {uniqueYears.map((year) => (
               <option key={year} value={year}>
-                {" "}
                 {year}
               </option>
             ))}

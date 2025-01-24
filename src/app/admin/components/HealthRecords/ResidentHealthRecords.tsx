@@ -3,9 +3,11 @@ import { useMutation, useQuery } from "@blitzjs/rpc"
 import getRecords from "../../queries/getRecords"
 import deleteRecord from "../../mutations/deleteHealthRecord"
 import Swal from "sweetalert2"
+import { useRouter } from "next/navigation"
 
 const ResidentHealthRecords = ({ resident }) => {
   // Fetch all records
+  const router = useRouter()
   const [allRecords, { refetch }] = useQuery(getRecords, {})
 
   // Filter records for the specific resident

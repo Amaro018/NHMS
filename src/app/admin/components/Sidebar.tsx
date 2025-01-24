@@ -29,7 +29,7 @@ export default function Sidebar() {
     <Box sx={{ width: 350 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
         {[
-          { text: "Home", href: "/admin/dashboard", icon: "bx bx-home-heart" },
+          { text: "Home", href: "/admin", icon: "bx bx-home-heart" },
           { text: "Residents", href: "/admin/resident", icon: "bx bxs-user-detail" },
           { text: "Health Records", href: "/admin/health-records", icon: "bx bx-heart" },
           { text: "Projects", href: "/admin/health-projects", icon: "bx bx-check-shield" },

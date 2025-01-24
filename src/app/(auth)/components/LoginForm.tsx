@@ -38,7 +38,7 @@ export const LoginForm = (props: LoginFormProps) => {
                   if (next) {
                     router.push(next as Route)
                   } else {
-                    router.push("/admin/dashboard")
+                    router.push("/admin")
                     router.refresh()
                     console.log("redirecting to dashboard")
                   }

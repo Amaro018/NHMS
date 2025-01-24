@@ -13,7 +13,7 @@ export default async function Nav() {
     <nav>
       <div className="flex justify-between py-4 px-16 bg-slate-600 items-center text-white">
         <div className="flex gap-4 items-center">
-          <img src="/logo3.png" alt="Logo" width="150" height="150" />
+          <Image src="/logo3.png" alt="Logo" width="150" height="150" />
         </div>
         <ul className="flex gap-4">
           <li>
@@ -29,7 +29,7 @@ export default async function Nav() {
                   <>
                     <div className="flex flex-row items-center gap-4">
                       <div className="flex flex-row gap-4">
-                        <Link href={"/admin/dashboard"} className="hover:text-green-300">
+                        <Link href={"/admin"} className="hover:text-green-300">
                           <p>Dashboard</p>
                         </Link>
                       </div>
@@ -49,10 +49,10 @@ export default async function Nav() {
                 <div className="flex gap-4">
                   {/* <Link href="/signup">
                     <strong>Sign Up</strong>
-                  </Link>
-                  <Link href="/login">
-                    <strong>Login</strong>
                   </Link> */}
+                  <Link href="/login">
+                    <strong>Admin Login</strong>
+                  </Link>
                 </div>
               )}
             </div>

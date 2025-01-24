@@ -38,7 +38,7 @@ const styleViewing = {
 }
 
 export default function HealthRecordList() {
-  const [residents, { refetch }] = useQuery(getResidents, null)
+  const [residents, { loading, error, refetch }] = useQuery(getResidents, null)
   const [records] = useQuery(getRecords, null)
   const [open, setOpen] = React.useState(false)
   const { isLoading } = useQuery(getResidents, null)
@@ -89,16 +89,25 @@ export default function HealthRecordList() {
     setSortConfig({ key, direction })
   }
 
+  const resident = React.useMemo(() => {
+    if (!residents) return null // Handle undefined residents
+    return residents.find((resident) => resident.id === selectedResident)
+  }, [residents, selectedResident])
+
   const sortedResidents = React.useMemo(() => {
+    if (!residents || !records) return []
+
     return residents
       .filter((resident) => {
-        const fullName =
-          `${resident.firstName} ${resident.middleName} ${resident.lastName}`.toLowerCase()
-        const residentRecords = records
-          .filter((record) => record.residentId === resident.id)
-          .sort((a, b) => new Date(b.dateOfCheckup) - new Date(a.dateOfCheckup))
+        const fullName = `${resident.firstName} ${resident.middleName || ""} ${
+          resident.lastName
+        }`.toLowerCase()
 
-        const latestRecord = residentRecords[0]
+        const residentRecords = records
+          ?.filter((record) => record.residentId === resident.id)
+          ?.sort((a, b) => new Date(b.dateOfCheckup) - new Date(a.dateOfCheckup))
+
+        const latestRecord = residentRecords?.[0]
 
         return (
           fullName.includes(searchTerm.toLowerCase()) &&
@@ -133,7 +142,7 @@ export default function HealthRecordList() {
     await refetch()
   }
 
-  const handleOpen = (resident) => {
+  const handleOpen = (resident: any) => {
     setSelectedResident(resident)
     setOpen(true)
   }
@@ -143,7 +152,7 @@ export default function HealthRecordList() {
     setSelectedResident(null)
   }
 
-  const handleOpenViewRecords = (resident) => {
+  const handleOpenViewRecords = (resident: any) => {
     setSelectedResident(resident)
     setOpenViewRecords(true)
   }
@@ -154,15 +163,15 @@ export default function HealthRecordList() {
     await refetch()
   }
 
-  const handleItemsPerPageChange = (event) => {
+  const handleItemsPerPageChange = (event: any) => {
     setItemsPerPage(Number(event.target.value))
     setCurrentPage(1) // Reset to first page on items per page change
   }
 
   return (
-    <div className="overflow-x-auto py-4 modal-pages">
-      <div className="flex justify-between py-2">
-        <div className="py-4 flex space-x-4">
+    <div className="overflow-x-auto modal-pages">
+      <div className="flex justify-between py-2 border border-x-black px-4">
+        <div className="flex space-x-4">
           <input
             type="text"
             placeholder="Search by Last or First name"

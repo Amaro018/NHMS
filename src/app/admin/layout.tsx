@@ -1,5 +1,6 @@
 import React from "react"
 import { useAuthenticatedBlitzContext } from "../blitz-server"
+import Footer from "../components/Footer"
 
 export const metadata = {
   title: "Admin",
@@ -11,5 +12,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     role: ["ADMIN"],
     redirectAuthenticatedTo: "/",
   })
-  return <>{children}</>
+  return (
+    <>
+      {children}
+      <Footer />
+    </>
+  )
 }

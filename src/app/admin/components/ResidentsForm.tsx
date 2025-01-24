@@ -6,7 +6,8 @@ import updateResident from "../mutations/updateResident" // Make sure you have a
 import { S } from "@blitzjs/auth/dist/index-0ecbee46"
 import Swal from "sweetalert2"
 
-const ResidentForm = ({ resident }) => {
+const ResidentForm = (props: any) => {
+  const { resident } = props
   const router = useRouter()
 
   // Initialize form data based on whether resident prop is provided (edit mode) or not (add mode)
