@@ -38,8 +38,8 @@ const styleViewing = {
 }
 
 export default function HealthRecordList() {
-  const [residents, { loading, error, refetch }] = useQuery(getResidents, null)
-  const [records] = useQuery(getRecords, null)
+  const [residents, { loading, error }] = useQuery(getResidents, null)
+  const [records, { refetch }] = useQuery(getRecords, null)
   const [open, setOpen] = React.useState(false)
   const { isLoading } = useQuery(getResidents, null)
   const [openViewRecords, setOpenViewRecords] = React.useState(false)
