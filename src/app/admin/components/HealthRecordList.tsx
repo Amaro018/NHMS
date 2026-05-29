@@ -36,6 +36,31 @@ const styleViewing = {
   outline: "none",
 }
 
+function exportHealthCSV(residents: any[], records: any[]) {
+  const headers = ["Name","Age","Height(cm)","Weight(kg)","BMI","Health Status","BP Status","Systolic","Diastolic","Last Checkup"]
+  const calcAge = (bd: Date) => {
+    const t = new Date(), b = new Date(bd)
+    let a = t.getFullYear() - b.getFullYear()
+    if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) a--
+    return a
+  }
+  const rows = residents.map(r => {
+    const latest = records.filter(rec => rec.residentId === r.id).sort((a,b) => new Date(b.dateOfCheckup).getTime() - new Date(a.dateOfCheckup).getTime())[0]
+    return [
+      `${r.lastName}, ${r.firstName}`, calcAge(r.birthDate),
+      latest?.height??"", latest?.weight??"", latest?.bmi??"",
+      latest?.healthStatus??"", latest?.bloodPressureStatus??"",
+      latest?.systolic??"", latest?.diastolic??"",
+      latest ? new Date(latest.dateOfCheckup).toLocaleDateString() : ""
+    ]
+  })
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n")
+  const blob = new Blob([csv], { type: "text/csv" })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a"); a.href = url; a.download = "health-records.csv"; a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function HealthRecordList() {
   const router = useRouter()
   const [residents] = useQuery(getResidents, null)
@@ -48,6 +73,8 @@ export default function HealthRecordList() {
   const [itemsPerPage, setItemsPerPage] = React.useState(10)
   const [selectedHealthStatus, setSelectedHealthStatus] = React.useState("")
   const [selectedbloodPressureStatus, setSelectedbloodPressureStatus] = React.useState("")
+  const [dateFrom, setDateFrom] = React.useState("")
+  const [dateTo, setDateTo] = React.useState("")
 
   const tableRef = useRef()
 
@@ -105,9 +132,9 @@ export default function HealthRecordList() {
         return (
           fullName.includes(searchTerm.toLowerCase()) &&
           (selectedHealthStatus ? latestRecord?.healthStatus === selectedHealthStatus : true) &&
-          (selectedbloodPressureStatus
-            ? latestRecord?.bloodPressureStatus === selectedbloodPressureStatus
-            : true)
+          (selectedbloodPressureStatus ? latestRecord?.bloodPressureStatus === selectedbloodPressureStatus : true) &&
+          (dateFrom && latestRecord ? new Date(latestRecord.dateOfCheckup) >= new Date(dateFrom) : true) &&
+          (dateTo && latestRecord ? new Date(latestRecord.dateOfCheckup) <= new Date(dateTo) : true)
         )
       })
       .sort((a, b) => {
@@ -121,6 +148,8 @@ export default function HealthRecordList() {
     searchTerm,
     selectedHealthStatus,
     selectedbloodPressureStatus,
+    dateFrom,
+    dateTo,
     records,
   ])
 
@@ -141,61 +170,56 @@ export default function HealthRecordList() {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:justify-between px-4 py-3 border-b border-slate-100 gap-2">
-        <div className="flex flex-wrap gap-2 items-center">
-          <input
-            type="text"
-            placeholder="Search by name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+      <div className="flex flex-wrap gap-2 items-center px-4 pt-3 pb-2 border-b border-slate-100">
+        <input type="text" placeholder="Search name..." value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300 w-36" />
+        <select value={selectedbloodPressureStatus} onChange={(e) => setSelectedbloodPressureStatus(e.target.value)}
+          className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
+          <option value="">All BP</option>
+          <option value="Hypotension">Hypotension</option>
+          <option value="Normal">Normal</option>
+          <option value="Elevated">Elevated</option>
+          <option value="Hypertension Stage 1">HT Stage 1</option>
+          <option value="Hypertension Stage 2">HT Stage 2</option>
+          <option value="Hypertensive Crisis">HT Crisis</option>
+        </select>
+        <select value={selectedHealthStatus} onChange={(e) => setSelectedHealthStatus(e.target.value)}
+          className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
+          <option value="">All BMI</option>
+          <option value="Normal weight">Normal</option>
+          <option value="Underweight">Underweight</option>
+          <option value="Overweight">Overweight</option>
+          <option value="Class I Obese">Class I</option>
+          <option value="Class II Obese">Class II</option>
+          <option value="Class III Obese">Class III</option>
+        </select>
+        <div className="flex items-center gap-1">
+          <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setCurrentPage(1) }}
             className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
-          />
-          <select
-            value={selectedbloodPressureStatus}
-            onChange={(e) => setSelectedbloodPressureStatus(e.target.value)}
+            title="From date" />
+          <span className="text-slate-400 text-xs">–</span>
+          <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setCurrentPage(1) }}
             className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
-          >
-            <option value="">All Status</option>
-            <option value="Hypotension">Hypotension</option>
-            <option value="Normal">Normal</option>
-            <option value="Elevated">Elevated</option>
-            <option value="Hypertension Stage 1">Hypertension Stage 1</option>
-            <option value="Hypertension Stage 2">Hypertension Stage 2</option>
-            <option value="Hypertensive Crisis">Hypertensive Crisis</option>
-          </select>
-          <select
-            value={selectedHealthStatus}
-            onChange={(e) => setSelectedHealthStatus(e.target.value)}
-            className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
-          >
-            <option value="">All Status</option>
-            <option value="Normal weight">Normal weight</option>
-            <option value="Underweight">Underweight</option>
-            <option value="Overweight">Overweight</option>
-            <option value="Class I Obese">Class I Obese</option>
-            <option value="Class II Obese">Class II obese</option>
-            <option value="Class III Obese">Class III obese</option>
+            title="To date" />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm text-slate-500">Show</span>
+          <select value={itemsPerPage} onChange={handleItemsPerPageChange}
+            className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300">
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
           </select>
         </div>
-        <div className="flex flex-wrap gap-2 items-center">
-          <div className="flex items-center gap-2">
-            <label htmlFor="itemsPerPage">Show : </label>
-            <select
-              value={itemsPerPage}
-              onChange={handleItemsPerPageChange}
-              className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={30}>30</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-          </div>
-          <button
-            className="bg-slate-700 px-4 py-2 rounded-md shadow hover:bg-slate-600 text-white text-sm font-medium flex items-center gap-1"
-            onClick={handlePrint}
-          >
+        <div className="flex gap-2 items-center ml-auto">
+          <button className="bg-green-700 hover:bg-green-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition-colors flex items-center gap-1"
+            onClick={() => exportHealthCSV(sortedResidents, records)}>
+            <i className="bx bx-export" /> CSV
+          </button>
+          <button className="border border-slate-300 hover:bg-slate-50 text-slate-600 text-sm font-medium px-3 py-1.5 rounded-md transition-colors flex items-center gap-1"
+            onClick={handlePrint}>
             <PrintIcon fontSize="small" /> Print
           </button>
         </div>

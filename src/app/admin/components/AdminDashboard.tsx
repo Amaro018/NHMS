@@ -7,6 +7,7 @@ import getHealthProjectCount from "./../queries/getHealthProjectCount"
 import getResidents from "./../queries/getResidents"
 import getRecords from "./../queries/getRecords"
 import getHealthProjects from "./../queries/getHealthProjects"
+import MonthlyTrendChart from "./MonthlyTrendChart"
 import { Chip } from "@mui/material"
 import "boxicons/css/boxicons.min.css"
 
@@ -194,6 +195,8 @@ export default function AdminDashboard() {
         </div>
 
       </div>
+
+      <MonthlyTrendChart />
     </div>
   )
 }

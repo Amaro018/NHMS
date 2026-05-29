@@ -2,6 +2,7 @@ import * as React from "react"
 import { useMutation, useQuery } from "@blitzjs/rpc"
 import deleteHealthProject from "../../mutations/deleteHealthProject"
 import getHealthProjects from "../../queries/getHealthProjects"
+import getResidents from "../../queries/getResidents"
 import { List, ListItem, ListItemText, Chip } from "@mui/material"
 import Swal from "sweetalert2"
 import { useRouter } from "next/navigation"
@@ -10,8 +11,19 @@ import { useRouter } from "next/navigation"
 export default function HealthProjectList() {
   const router = useRouter()
   const [healthProjects, { refetch }] = useQuery(getHealthProjects, null)
+  const [residents] = useQuery(getResidents, null)
   const [deleteProjectMutation] = useMutation(deleteHealthProject)
   const [loadingId, setLoadingId] = React.useState<number | null>(null)
+
+  const getParticipantCount = (project: any) => {
+    const statuses = project.healthStatuses.map((s: any) => s.statusName)
+    if (statuses.includes("All Residents")) return residents.length
+    return residents.filter(r => {
+      const latest = r.HealthRecord?.sort((a: any, b: any) => new Date(b.dateOfCheckup).getTime() - new Date(a.dateOfCheckup).getTime())[0]
+      if (!latest) return false
+      return statuses.includes(latest.healthStatus) || statuses.includes(latest.bloodPressureStatus)
+    }).length
+  }
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -104,7 +116,25 @@ export default function HealthProjectList() {
                     <strong>End:</strong>{" "}
                     {new Intl.DateTimeFormat(undefined, { year: "numeric", month: "long", day: "numeric" }).format(new Date(project.endDate))}
                   </p>
-                  <div className="mt-2">
+                  <div className="mt-2 mb-2">
+                    {(() => {
+                      const count = getParticipantCount(project)
+                      const total = residents.length
+                      const pct = total > 0 ? Math.round((count / total) * 100) : 0
+                      return (
+                        <div>
+                          <div className="flex justify-between text-xs text-slate-500 mb-1">
+                            <span><strong>{count}</strong> participant{count !== 1 ? "s" : ""}</span>
+                            <span>{pct}% of residents</span>
+                          </div>
+                          <div className="w-full bg-slate-100 rounded-full h-1.5">
+                            <div className="bg-slate-600 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                  <div className="mt-1">
                     <strong>Target Health Statuses: </strong>
 
                     {project.healthStatuses.map((status) => (

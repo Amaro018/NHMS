@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import createResident from "../mutations/createResident"
 import updateResident from "../mutations/updateResident"
 import Swal from "sweetalert2"
+import { useConfirmLeave } from "../hooks/useConfirmLeave"
 
 const inputClass =
   "w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 transition"
@@ -14,6 +15,9 @@ const ResidentForm = (props: any) => {
   const { resident } = props
   const router = useRouter()
   const isEdit = !!resident
+
+  const [isDirty, setIsDirty] = useState(false)
+  useConfirmLeave(isDirty)
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -42,6 +46,7 @@ const ResidentForm = (props: any) => {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    setIsDirty(true)
   }
 
   const handleSubmit = async (e) => {
@@ -54,6 +59,7 @@ const ResidentForm = (props: any) => {
         await invoke(createResident, { ...formData, birthDate: new Date(formData.birthDate) })
         Swal.fire({ icon: "success", title: "Added", text: "Resident added successfully!", confirmButtonColor: "#475569" })
       }
+      setIsDirty(false)
       router.push("/admin/resident")
       router.refresh()
     } catch (error) {

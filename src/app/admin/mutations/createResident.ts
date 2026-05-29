@@ -1,4 +1,5 @@
 import db from "db"
+import { AuthenticationError } from "blitz"
 
 export default async function createResident(input: {
   firstName: string
@@ -9,6 +10,14 @@ export default async function createResident(input: {
   address: string
   contactNumber?: string
 }) {
-  const resident = await db.resident.create({ data: input })
-  return resident
+  const duplicate = await db.resident.findFirst({
+    where: {
+      firstName: { equals: input.firstName, mode: "insensitive" },
+      lastName: { equals: input.lastName, mode: "insensitive" },
+      birthDate: input.birthDate,
+    },
+  })
+  if (duplicate) throw new Error("A resident with the same name and birth date already exists.")
+
+  return await db.resident.create({ data: input })
 }

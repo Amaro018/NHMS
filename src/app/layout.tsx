@@ -3,6 +3,7 @@ import { BlitzProvider } from "./blitz-client"
 // import { Inter } from "next/font/google"
 import Nav from "./components/Nav"
 import Footer from "./components/Footer"
+import { ToastProvider } from "./components/Toast"
 
 //const inter = Inter({ subsets: ["latin"] })
 
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <BlitzProvider>
           <Nav />
           <>{children}</>
+          <ToastProvider />
         </BlitzProvider>
       </body>
     </html>

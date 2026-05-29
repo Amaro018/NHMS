@@ -3,6 +3,7 @@ import createHealthRecord from "../mutations/createHealthRecord"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Swal from "sweetalert2"
+import { useConfirmLeave } from "../hooks/useConfirmLeave"
 
 const input =
   "w-full px-4 py-3 border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 transition bg-white"
@@ -35,6 +36,8 @@ const bpColor = (status: string) => {
 const HealthRecordForm = ({ resident, onSuccess }) => {
   const router = useRouter()
   const [addRecord] = useMutation(createHealthRecord)
+  const [isDirty, setIsDirty] = useState(false)
+  useConfirmLeave(isDirty)
   const [formData, setFormData] = useState({
     dateOfCheckup: "",
     weight: "",
@@ -66,6 +69,7 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
+    setIsDirty(true)
     setFormData((prev) => {
       const next = { ...prev, [name]: value }
       const w = name === "weight" ? Number(value) : Number(prev.weight)
@@ -107,6 +111,7 @@ const HealthRecordForm = ({ resident, onSuccess }) => {
         diastolic: Number(formData.diastolic),
         bloodPressureStatus: formData.bloodPressureStatus,
       })
+      setIsDirty(false)
       onSuccess()
       Swal.fire({ icon: "success", title: "Record Saved", confirmButtonColor: "#475569" })
       router.refresh()
