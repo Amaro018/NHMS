@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic"
 import { invoke } from "../../blitz-server"
 import getPublicProject from "../../queries/getPublicProject"
 import Footer from "../../components/Footer"

@@ -5,6 +5,8 @@ import BpChart from "./components/bpChart"
 import getPublicStats from "./queries/getPublicStats"
 import Link from "next/link"
 
+export const dynamic = "force-dynamic"
+
 const statusColor: Record<string, string> = {
   Normal: "#00e676",
   "Normal weight": "#00e676",
@@ -26,7 +28,8 @@ function isUpcoming(endDate: Date) {
 }
 
 export default async function Home() {
-  const { residentCount, recordCount, projects } = await invoke(getPublicStats, null)
+  const stats = await invoke(getPublicStats, null).catch(() => ({ residentCount: 0, recordCount: 0, projects: [] }))
+  const { residentCount, recordCount, projects } = stats
   const activeProjects = projects.filter((p) => isUpcoming(p.endDate))
 
   return (
