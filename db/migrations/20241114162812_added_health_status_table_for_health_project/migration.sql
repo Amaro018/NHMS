@@ -1,11 +1,11 @@
 /*
   Warnings:
 
-  - You are about to drop the column `targetHealthStatus` on the `healthproject` table. All the data in the column will be lost.
+  - You are about to drop the column `targetHealthStatus` on the `HealthProject` table. All the data in the column will be lost.
 
 */
 -- AlterTable
-ALTER TABLE `healthproject` DROP COLUMN `targetHealthStatus`;
+ALTER TABLE `HealthProject` DROP COLUMN `targetHealthStatus`;
 
 -- CreateTable
 CREATE TABLE `HealthStatus` (

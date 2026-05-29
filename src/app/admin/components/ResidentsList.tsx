@@ -2,52 +2,25 @@ import { useMutation, useQuery } from "@blitzjs/rpc"
 import getResidents from "../queries/getResidents"
 import deleteResident from "../mutations/deleteResident"
 import * as React from "react"
-import updateResident from "../mutations/updateResident"
-import createHealthRecord from "../mutations/createHealthRecord"
-import Box from "@mui/material/Box"
-import Modal from "@mui/material/Modal"
-import ResidentForm from "./ResidentsForm"
-import HealthRecordForm from "./HealthRecordForm"
 import swal from "sweetalert"
-import { Resident } from "@prisma/client"
 import Pagination from "@mui/material/Pagination"
 import Stack from "@mui/material/Stack"
 import { TextField } from "@mui/material"
 import PrintIcon from "@mui/icons-material/Print"
-
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: "10px",
-}
-
+import { useRouter } from "next/navigation"
 export default function ResidentList() {
+  const router = useRouter()
+  const [loadingId, setLoadingId] = React.useState<number | null>(null)
   const [residents, { refetch }] = useQuery(getResidents, null)
   const [deleteResidentMutation] = useMutation(deleteResident)
-  const [createRecord] = useMutation(createHealthRecord)
 
-  const [open, setOpen] = React.useState(false)
-  const [openRecord, setOpenRecord] = React.useState(false)
-  const [selectedResident, setSelectedResident] = React.useState(null)
   const [searchTerm, setSearchTerm] = React.useState("")
-  const [sortConfig, setSortConfig] = React.useState({ key: "name", direction: "asc" })
-
-  // Add new state for filtering by gender and Purok
+  const [sortConfig, setSortConfig] = React.useState({ key: "lastName", direction: "asc" })
   const [selectedGender, setSelectedGender] = React.useState("")
   const [selectedPurok, setSelectedPurok] = React.useState("")
-
   const [currentPage, setCurrentPage] = React.useState(1)
   const [itemsPerPage, setItemsPerPage] = React.useState(10)
-  const tableRef = React.useRef()
-
-  const [openResident, setOpenResident] = React.useState(false)
+  const tableRef = React.useRef<HTMLDivElement>(null)
 
   const handlePrint = () => {
     const printWindow = window.open("", "_blank")
@@ -58,41 +31,17 @@ export default function ResidentList() {
         <head>
           <title>HEALTH RECORDS OF BRGY NAGSIYA</title>
           <style>
-            /* General styling for print view */
             body { font-family: Arial, sans-serif; font-size: 12px; }
             table { width: 100%; border-collapse: collapse; }
-            th, td { border: 4px solid #ddd; padding: 14px; }
+            th, td { border: 1px solid #ddd; padding: 8px; }
             th { background-color: #f2f2f2; }
-  
-            /* Hide elements with the 'no-print' class */
             .no-print { display: none !important; }
           </style>
         </head>
-        <body onload="window.print(); window.close();">
-          ${printContent}
-          
-        </body>
+        <body onload="window.print(); window.close();">${printContent}</body>
       </html>
     `)
     printWindow.document.close()
-  }
-
-  const handleOpen = (resident) => {
-    console.log(resident)
-    setSelectedResident(resident)
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-    setSelectedResident(null)
-  }
-
-  const handleOpenResident = () => setOpenResident(true)
-  const handleCloseResident = () => {
-    setSelectedResident(null)
-    setOpenResident(false)
-    refetch()
   }
 
   const handleDeleteResident = async (id) => {
@@ -100,213 +49,147 @@ export default function ResidentList() {
       await deleteResident({ id })
       await refetch()
       swal("Deleted!", "Resident and associated health records have been deleted.", "success")
-    } catch (error) {
+    } catch {
       swal("Error", "Failed to delete resident. Please try again.", "error")
     }
   }
 
   const confirmDelete = (id) => {
-    swal({
-      title: "Are you sure?",
-      text: "You want to delete this resident and all associated health records?",
-      icon: "warning",
-      buttons: true,
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) handleDeleteResident(id)
-    })
+    swal({ title: "Are you sure?", text: "This will delete the resident and all their health records.", icon: "warning", buttons: true, dangerMode: true })
+      .then((willDelete) => { if (willDelete) handleDeleteResident(id) })
   }
 
   const handleSort = (key) => {
-    let direction = "asc"
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc"
-    }
-    setSortConfig({ key, direction })
+    setSortConfig((prev) =>
+      prev.key === key
+        ? { key, direction: prev.direction === "asc" ? "desc" : "asc" }
+        : { key, direction: "asc" }
+    )
   }
 
-  // Filter by search term, gender, and Purok
   const filteredResidents = React.useMemo(() => {
     return residents
-      .filter((resident) => {
-        const fullName = `${resident.firstName} ${resident.middleName} ${resident.lastName}`
+      .filter((r) => {
+        const fullName = `${r.firstName} ${r.middleName} ${r.lastName}`
         return (
           fullName.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          (selectedGender ? resident.gender === selectedGender : true) &&
-          (selectedPurok ? resident.address === selectedPurok : true)
+          (selectedGender ? r.gender === selectedGender : true) &&
+          (selectedPurok ? r.address === selectedPurok : true)
         )
       })
       .sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === "asc" ? -1 : 1
-        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === "asc" ? 1 : -1
-        return 0
+        const aVal = String(a[sortConfig.key] ?? "")
+        const bVal = String(b[sortConfig.key] ?? "")
+        const cmp = aVal.localeCompare(bVal)
+        return sortConfig.direction === "asc" ? cmp : -cmp
       })
   }, [residents, searchTerm, selectedGender, selectedPurok, sortConfig])
 
   const totalPages = Math.ceil(filteredResidents.length / itemsPerPage)
+  const paginatedResidents = filteredResidents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
-  const paginatedResidents = filteredResidents.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
-
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value)
-  }
-
-  const handleItemsPerPageChange = (event) => {
-    setItemsPerPage(Number(event.target.value))
-    setCurrentPage(1) // Reset to first page on items per page change
-  }
+  const selectClass = "px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
 
   return (
-    <div className="overflow-x-auto ">
-      <div className="flex flex-row justify-between border border-x-black p-2 items-center">
-        <div className="flex flex-row gap-4">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:justify-between px-4 py-3 border-b border-slate-100 gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
           <TextField
-            label="SEARCH RESIDENT"
+            label="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             variant="outlined"
             size="small"
           />
-          <select
-            value={selectedGender}
-            onChange={(e) => setSelectedGender(e.target.value)}
-            className="p-2 border rounded"
-          >
+          <select value={selectedGender} onChange={(e) => setSelectedGender(e.target.value)} className={selectClass}>
             <option value="">All Genders</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
-          <select
-            value={selectedPurok}
-            onChange={(e) => setSelectedPurok(e.target.value)}
-            className="p-2 border rounded"
-          >
+          <select value={selectedPurok} onChange={(e) => setSelectedPurok(e.target.value)} className={selectClass}>
             <option value="">All Puroks</option>
             <option value="Purok 1">Purok 1</option>
             <option value="Purok 2">Purok 2</option>
             <option value="Purok 3">Purok 3</option>
             <option value="Purok 4">Purok 4</option>
           </select>
-          <div className="flex items-center gap-4">
-            <label htmlFor="itemsPerPage">Show : </label>
-            <select
-              value={itemsPerPage}
-              onChange={handleItemsPerPageChange}
-              className="p-2 border rounded"
-            >
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-slate-500">Show</span>
+            <select value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1) }} className={selectClass}>
               <option value={10}>10</option>
               <option value={20}>20</option>
-              <option value={30}>30</option>
               <option value={50}>50</option>
               <option value={100}>100</option>
             </select>
           </div>
         </div>
-        <div className="flex flex-row gap-4">
-          <div>
-            <button
-              className="bg-slate-600 p-4 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white dark:bg-white dark:text-black"
-              onClick={() => handleOpen(null)}
-            >
-              Add Resident
-            </button>
-          </div>
-          <button
-            className="bg-slate-600 px-8 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white"
-            onClick={handlePrint}
-          >
-            Print <PrintIcon />
+        <div className="flex flex-wrap gap-2 items-center">
+          <button className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-1.5 rounded-md transition-colors"
+            onClick={() => router.push("/admin/resident/new")}>
+            + Add Resident
+          </button>
+          <button className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-1.5 rounded-md transition-colors flex items-center gap-1"
+            onClick={handlePrint}>
+            <PrintIcon fontSize="small" /> Print
           </button>
         </div>
       </div>
-      <div ref={tableRef}>
-        <table className="min-w-full rounded-md border border-slate-600">
-          <thead>
+
+      <div className="overflow-x-auto" ref={tableRef}>
+        <table className="min-w-full text-sm">
+          <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
             <tr>
-              <th
-                className="px-4 py-2 border-b cursor-pointer border-slate-600"
-                onClick={() => handleSort("lastName")}
-              >
-                Name<i className="bx bxs-sort-alt"></i>
-              </th>
-              <th
-                className="px-4 py-2 border-b cursor-pointer border-slate-600"
-                onClick={() => handleSort("birthDate")}
-              >
-                Birth Date
-              </th>
-              <th
-                className="px-4 py-2 border-b cursor-pointer border-slate-600"
-                onClick={() => handleSort("gender")}
-              >
-                Gender
-              </th>
-              <th
-                className="px-4 py-2 border-b cursor-pointer border-slate-600"
-                onClick={() => handleSort("address")}
-              >
-                Purok
-              </th>
-              <th className="px-4 py-2 border-b border-slate-600">Contact Number</th>
-              <th className="px-4 py-2 border-b border-slate-600">Last Record</th>
-              <th className="px-4 py-2 border-b border-slate-600 no-print">Action</th>
+              <th className="px-4 py-3 text-left cursor-pointer" onClick={() => handleSort("lastName")}>Name <i className="bx bxs-sort-alt" /></th>
+              <th className="px-4 py-3 text-left cursor-pointer" onClick={() => handleSort("birthDate")}>Birth Date</th>
+              <th className="px-4 py-3 text-left cursor-pointer" onClick={() => handleSort("gender")}>Gender</th>
+              <th className="px-4 py-3 text-left cursor-pointer" onClick={() => handleSort("address")}>Purok</th>
+              <th className="px-4 py-3 text-left">Contact</th>
+              <th className="px-4 py-3 text-left">Last Record</th>
+              <th className="px-4 py-3 text-left no-print">Action</th>
             </tr>
           </thead>
-          <tbody className="text-center capitalize">
+          <tbody className="divide-y divide-slate-100 capitalize">
+            {paginatedResidents.length === 0 && (
+              <tr>
+                <td colSpan={7} className="py-16 text-slate-400 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <i className="bx bxs-user-detail text-5xl" />
+                    <p className="text-base font-medium">No residents found</p>
+                    <p className="text-sm">Try adjusting your search or filters.</p>
+                  </div>
+                </td>
+              </tr>
+            )}
             {paginatedResidents.map((resident) => (
-              <tr key={resident.id}>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {resident.lastName + ", " + resident.firstName + " " + resident.middleName}
+              <tr key={resident.id} className="hover:bg-slate-50">
+                <td className="px-4 py-3 font-medium">{resident.lastName}, {resident.firstName} {resident.middleName}</td>
+                <td className="px-4 py-3 text-slate-500">
+                  {new Date(resident.birthDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                 </td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {new Date(resident.birthDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                <td className="px-4 py-3 text-slate-500">{resident.gender}</td>
+                <td className="px-4 py-3 text-slate-500">{resident.address}</td>
+                <td className="px-4 py-3 text-slate-500">{resident.contactNumber || "—"}</td>
+                <td className="px-4 py-3 text-slate-500">
+                  {resident.HealthRecord.length > 0
+                    ? new Date(resident.HealthRecord.sort((a, b) => new Date(b.dateOfCheckup).getTime() - new Date(a.dateOfCheckup).getTime())[0].dateOfCheckup)
+                        .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                    : <span className="text-slate-300">No record</span>}
                 </td>
-                <td className="px-4 py-2 border-b border-slate-600">{resident.gender}</td>
-                <td className="px-4 py-2 border-b border-slate-600">{resident.address}</td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {resident.contactNumber || "-"}
-                </td>
-                <td className="px-4 py-2 border-b border-slate-600">
-                  {resident.HealthRecord.length > 0 ? (
-                    (() => {
-                      const latestRecord = resident.HealthRecord.sort(
-                        (a, b) => new Date(b.dateOfCheckup) - new Date(a.dateOfCheckup)
-                      )[0]
-                      return (
-                        <span>
-                          {new Date(latestRecord.dateOfCheckup).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </span>
-                      )
-                    })()
-                  ) : (
-                    <span>No Record</span>
-                  )}
-                </td>
-                <td className="px-4 py-2 border-b border-slate-600 no-print">
-                  <button
-                    className="bg-slate-600 p-2 rounded-md text-white hover:bg-slate-500"
-                    onClick={() => handleOpen(resident)}
-                  >
-                    Update
-                  </button>
-                  <button
-                    className="bg-red-600 p-2 rounded-md text-white ml-2 hover:bg-red-500"
-                    onClick={() => confirmDelete(resident.id)}
-                  >
-                    Delete
-                  </button>
+                <td className="px-4 py-3 no-print">
+                  <div className="flex gap-2">
+                    <button
+                      className="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded-md transition-colors disabled:opacity-50 flex items-center gap-1"
+                      onClick={() => { setLoadingId(resident.id); router.push(`/admin/resident/${resident.id}/edit`) }}
+                      disabled={loadingId === resident.id}
+                    >
+                      {loadingId === resident.id ? <><i className="bx bx-loader-alt animate-spin" /> Loading</> : "Edit"}
+                    </button>
+                    <button className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded-md transition-colors"
+                      onClick={() => confirmDelete(resident.id)}>
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -314,26 +197,11 @@ export default function ResidentList() {
         </table>
       </div>
 
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={style}>
-          <ResidentForm resident={selectedResident} />
-        </Box>
-      </Modal>
-
-      <div className="flex justify-center p-2">
+      <div className="flex justify-center p-3 border-t border-slate-100">
         <Stack spacing={2}>
-          <Pagination
-            count={totalPages}
-            page={currentPage}
-            onChange={handlePageChange}
-            variant="outlined"
-            shape="rounded"
-            color="primary"
-          />
+          <Pagination count={totalPages} page={currentPage} onChange={(_, v) => setCurrentPage(v)} variant="outlined" shape="rounded" color="primary" />
         </Stack>
       </div>
-
-      <div>{filteredResidents.length === 0 && <p>No residents found.</p>}</div>
     </div>
   )
 }

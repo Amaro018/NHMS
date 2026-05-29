@@ -4,6 +4,7 @@ const { withBlitz } = require("@blitzjs/next")
 const nextConfig = {
   experimental: {
     typedRoutes: true,
+    serverComponentsExternalPackages: ["jsonwebtoken", "secure-password", "sodium-native"],
   },
 }
 

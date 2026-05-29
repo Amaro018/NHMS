@@ -1,27 +1,24 @@
 import React, { useRef } from "react"
-import { useReactToPrint } from "react-to-print"
 import { useQuery } from "@blitzjs/rpc"
 import getResidents from "../queries/getResidents"
 import getRecords from "../queries/getRecords"
-
-import Box from "@mui/material/Box"
-import Modal from "@mui/material/Modal"
-import HealthRecordForm from "./HealthRecordForm"
-import ResidentHealthRecords from "./HealthRecords/ResidentHealthRecords"
 import { Pagination, Stack } from "@mui/material"
 import PrintIcon from "@mui/icons-material/Print"
+import { useRouter } from "next/navigation"
 
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 1000,
+  width: "min(95vw, 500px)",
+  maxHeight: "90vh",
+  overflowY: "auto",
   bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: "10px",
+  border: "none",
+  boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+  borderRadius: "16px",
+  outline: "none",
 }
 
 const styleViewing = {
@@ -29,21 +26,22 @@ const styleViewing = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 1500,
+  width: "min(95vw, 1100px)",
+  maxHeight: "90vh",
+  overflowY: "auto",
   bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: "10px",
+  border: "none",
+  boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+  borderRadius: "16px",
+  outline: "none",
 }
 
 export default function HealthRecordList() {
-  const [residents, { loading, error }] = useQuery(getResidents, null)
-  const [records, { refetch }] = useQuery(getRecords, null)
-  const [open, setOpen] = React.useState(false)
-  const { isLoading } = useQuery(getResidents, null)
-  const [openViewRecords, setOpenViewRecords] = React.useState(false)
-  const [selectedResident, setSelectedResident] = React.useState(null)
+  const router = useRouter()
+  const [residents] = useQuery(getResidents, null)
+  const [records] = useQuery(getRecords, null)
+  const [loadingView, setLoadingView] = React.useState<number | null>(null)
+  const [loadingAdd, setLoadingAdd] = React.useState<number | null>(null)
   const [searchTerm, setSearchTerm] = React.useState("")
   const [sortConfig, setSortConfig] = React.useState({ key: "name", direction: "asc" })
   const [currentPage, setCurrentPage] = React.useState(1)
@@ -89,11 +87,6 @@ export default function HealthRecordList() {
     setSortConfig({ key, direction })
   }
 
-  const resident = React.useMemo(() => {
-    if (!residents) return null // Handle undefined residents
-    return residents.find((resident) => resident.id === selectedResident)
-  }, [residents, selectedResident])
-
   const sortedResidents = React.useMemo(() => {
     if (!residents || !records) return []
 
@@ -137,30 +130,8 @@ export default function HealthRecordList() {
     currentPage * itemsPerPage
   )
 
-  const handlePageChange = async (event, value) => {
+  const handlePageChange = (event, value) => {
     setCurrentPage(value)
-    await refetch()
-  }
-
-  const handleOpen = (resident: any) => {
-    setSelectedResident(resident)
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-    setSelectedResident(null)
-  }
-
-  const handleOpenViewRecords = (resident: any) => {
-    setSelectedResident(resident)
-    setOpenViewRecords(true)
-  }
-
-  const handleCloseViewRecords = async () => {
-    setOpenViewRecords(false)
-    setSelectedResident(null)
-    await refetch()
   }
 
   const handleItemsPerPageChange = (event: any) => {
@@ -169,20 +140,20 @@ export default function HealthRecordList() {
   }
 
   return (
-    <div className="overflow-x-auto modal-pages">
-      <div className="flex justify-between py-2 border border-x-black px-4">
-        <div className="flex space-x-4">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:justify-between px-4 py-3 border-b border-slate-100 gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
           <input
             type="text"
-            placeholder="Search by Last or First name"
+            placeholder="Search by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="p-2 border rounded"
+            className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
           />
           <select
             value={selectedbloodPressureStatus}
             onChange={(e) => setSelectedbloodPressureStatus(e.target.value)}
-            className="p-2 border rounded"
+            className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
           >
             <option value="">All Status</option>
             <option value="Hypotension">Hypotension</option>
@@ -195,7 +166,7 @@ export default function HealthRecordList() {
           <select
             value={selectedHealthStatus}
             onChange={(e) => setSelectedHealthStatus(e.target.value)}
-            className="p-2 border rounded"
+            className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
           >
             <option value="">All Status</option>
             <option value="Normal weight">Normal weight</option>
@@ -206,13 +177,13 @@ export default function HealthRecordList() {
             <option value="Class III Obese">Class III obese</option>
           </select>
         </div>
-        <div className="flex flex-row gap-4">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex items-center gap-2">
             <label htmlFor="itemsPerPage">Show : </label>
             <select
               value={itemsPerPage}
               onChange={handleItemsPerPageChange}
-              className="p-2 border rounded"
+              className="px-3 py-1.5 border border-slate-200 rounded-md text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-slate-300"
             >
               <option value={10}>10</option>
               <option value={20}>20</option>
@@ -222,31 +193,42 @@ export default function HealthRecordList() {
             </select>
           </div>
           <button
-            className="bg-slate-600 px-8 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white"
+            className="bg-slate-700 px-4 py-2 rounded-md shadow hover:bg-slate-600 text-white text-sm font-medium flex items-center gap-1"
             onClick={handlePrint}
           >
-            Print <PrintIcon />
+            <PrintIcon fontSize="small" /> Print
           </button>
         </div>
       </div>
-      <div ref={tableRef}>
-        <table className="min-w-full rounded-md border border-slate-600">
-          <thead>
+      <div className="overflow-x-auto" ref={tableRef}>
+        <table className="min-w-full text-sm">
+          <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
             <tr>
-              <th className="py-2 border-b cursor-pointer border-slate-600">
-                Name<i className="bx bxs-sort-alt" onClick={() => handleSort("name")}></i>
+              <th className="px-4 py-3 text-left cursor-pointer" onClick={() => handleSort("name")}>
+                Name <i className="bx bxs-sort-alt" />
               </th>
-              <th className="py-2 border-b cursor-pointer border-slate-600">Age</th>
-              <th className="py-2 border-b cursor-pointer border-slate-600">Height</th>
-              <th className="py-2 border-b cursor-pointer border-slate-600">Weight</th>
-              <th className="py-2 border-b border-slate-600">BMI</th>
-              <th className="py-2 border-b border-slate-600">Health Status</th>
-              <th className="py-2 border-b border-slate-600">BP Status</th>
-              <th className="py-2 border-b border-slate-600">Last Checkup</th>
-              <th className="py-2 border-b border-slate-600 no-print">Action</th>
+              <th className="px-4 py-3 text-left">Age</th>
+              <th className="px-4 py-3 text-left">Height</th>
+              <th className="px-4 py-3 text-left">Weight</th>
+              <th className="px-4 py-3 text-left">BMI</th>
+              <th className="px-4 py-3 text-left">Health Status</th>
+              <th className="px-4 py-3 text-left">BP Status</th>
+              <th className="px-4 py-3 text-left">Last Checkup</th>
+              <th className="px-4 py-3 text-left no-print">Action</th>
             </tr>
           </thead>
-          <tbody className="text-center capitalize">
+          <tbody className="divide-y divide-slate-100 capitalize">
+            {paginatedResidents.length === 0 && (
+              <tr>
+                <td colSpan={9} className="py-16 text-slate-400 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <i className="bx bx-heart text-5xl" />
+                    <p className="text-base font-medium">No health records found</p>
+                    <p className="text-sm">Try adjusting your search or filters.</p>
+                  </div>
+                </td>
+              </tr>
+            )}
             {paginatedResidents.map((resident) => {
               const residentRecords = records
                 .filter((record) => record.residentId === resident.id)
@@ -255,11 +237,11 @@ export default function HealthRecordList() {
               const latestRecord = residentRecords[0]
 
               return (
-                <tr key={resident.id}>
-                  <td className="px-4 py-2 border-b border-slate-600">
+                <tr key={resident.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3">
                     {resident.firstName} {resident.middleName} {resident.lastName}
                   </td>
-                  <td className="px-4 py-2 border-b border-slate-600">
+                  <td className="px-4 py-3 text-slate-600">
                     {(() => {
                       const today = new Date()
                       const birthDate = new Date(resident.birthDate)
@@ -275,13 +257,13 @@ export default function HealthRecordList() {
                       return age
                     })()}
                   </td>
-                  <td className="px-4 py-2 border-b border-slate-600">
+                  <td className="px-4 py-3 text-slate-600">
                     {latestRecord ? `${latestRecord.height} cm` : "N/A"}
                   </td>
-                  <td className="px-4 py-2 border-b border-slate-600">
+                  <td className="px-4 py-3 text-slate-600">
                     {latestRecord ? `${latestRecord.weight} kg` : "N/A"}
                   </td>
-                  <td className="px-4 py-2 border-b border-slate-600">
+                  <td className="px-4 py-3 text-slate-600">
                     {latestRecord ? latestRecord.bmi : "N/A"}
                   </td>
                   <td
@@ -298,7 +280,7 @@ export default function HealthRecordList() {
                   >
                     {latestRecord ? latestRecord.bloodPressureStatus : "N/A"}
                   </td>
-                  <td className="px-4 py-2 border-b border-slate-600">
+                  <td className="px-4 py-3 text-slate-600">
                     {latestRecord
                       ? new Date(latestRecord.dateOfCheckup).toLocaleDateString("en-US", {
                           year: "numeric",
@@ -307,19 +289,23 @@ export default function HealthRecordList() {
                         })
                       : "N/A"}
                   </td>
-                  <td className="px-4 py-2 border-b border-slate-600 no-print">
-                    <button
-                      className="bg-blue-600 p-2 rounded-md text-white hover:bg-blue-500"
-                      onClick={() => handleOpenViewRecords(resident)}
-                    >
-                      View Records
-                    </button>
-                    <button
-                      className="bg-green-600 p-2 rounded-md text-white ml-2 hover:bg-green-500"
-                      onClick={() => handleOpen(resident)}
-                    >
-                      Add Record
-                    </button>
+                  <td className="px-4 py-3 no-print">
+                    <div className="flex gap-2">
+                      <button
+                        className="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded-md transition-colors disabled:opacity-50 flex items-center gap-1"
+                        onClick={() => { setLoadingView(resident.id); router.push(`/admin/health-records/${resident.id}`) }}
+                        disabled={loadingView === resident.id}
+                      >
+                        {loadingView === resident.id ? <><i className="bx bx-loader-alt animate-spin" />Loading</> : "View"}
+                      </button>
+                      <button
+                        className="bg-green-600 hover:bg-green-500 text-white text-xs px-3 py-1.5 rounded-md transition-colors disabled:opacity-50 flex items-center gap-1"
+                        onClick={() => { setLoadingAdd(resident.id); router.push(`/admin/health-records/${resident.id}/new`) }}
+                        disabled={loadingAdd === resident.id}
+                      >
+                        {loadingAdd === resident.id ? <><i className="bx bx-loader-alt animate-spin" />Loading</> : "+ Record"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )
@@ -327,18 +313,6 @@ export default function HealthRecordList() {
           </tbody>
         </table>
       </div>
-
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={style}>
-          <HealthRecordForm resident={selectedResident} onSuccess={handleClose} />
-        </Box>
-      </Modal>
-
-      <Modal open={openViewRecords} onClose={handleCloseViewRecords}>
-        <Box sx={styleViewing}>
-          <ResidentHealthRecords resident={selectedResident} />
-        </Box>
-      </Modal>
 
       <div className="flex justify-center p-2">
         <Stack spacing={2}>

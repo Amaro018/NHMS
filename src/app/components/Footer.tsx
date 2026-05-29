@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
-    <footer className="footer bottom-0 text-white text-center">
-      <p>&copy; 2024. made by J. Amaro.</p>
+    <footer className="text-slate-300 text-center text-sm">
+      &copy; {new Date().getFullYear()} Brgy. Nagsiya &mdash; NHMS. Made by J. Amaro.
     </footer>
   )
 }

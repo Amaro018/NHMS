@@ -1,87 +1,58 @@
 import * as React from "react"
-import { useMutation } from "@blitzjs/rpc"
+import { useMutation, useQuery } from "@blitzjs/rpc"
 import deleteHealthProject from "../../mutations/deleteHealthProject"
-import { useQuery } from "@blitzjs/rpc"
 import getHealthProjects from "../../queries/getHealthProjects"
-import { Box, Typography, List, ListItem, ListItemText, Chip, Button, Modal } from "@mui/material"
+import { List, ListItem, ListItemText, Chip } from "@mui/material"
 import Swal from "sweetalert2"
-import HealthProjectForm from "./healthProjectForm"
+import { useRouter } from "next/navigation"
 
-const style = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 1000,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-}
+
 export default function HealthProjectList() {
+  const router = useRouter()
   const [healthProjects, { refetch }] = useQuery(getHealthProjects, null)
   const [deleteProjectMutation] = useMutation(deleteHealthProject)
-  const [selectedProject, setSelectedProject] = React.useState(null) // State for editing
-
-  React.useEffect(() => {
-    refetch()
-  }, [refetch])
-  const [open, setOpen] = React.useState(false)
-  const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
+  const [loadingId, setLoadingId] = React.useState<number | null>(null)
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        borderLeft: "2px solid #ddd",
-        borderRight: "2px solid #ddd",
-        borderBottom: "2px solid #ddd",
-        borderBottomLeftRadius: "4px",
-        borderBottomRightRadius: "4px",
-      }}
-    >
-      <List>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      {healthProjects.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-2">
+          <i className="bx bx-check-shield text-5xl" />
+          <p className="text-base font-medium">No health projects yet</p>
+          <p className="text-sm">Add a project to get started.</p>
+        </div>
+      )}
+      <List disablePadding>
         {healthProjects.map((project) => (
           <ListItem
             key={project.id}
-            sx={{ borderBottom: "1px solid #ddd", paddingBottom: 2 }}
-            className="hover:bg-gray-50"
+            sx={{ borderBottom: "1px solid #f1f5f9", py: 2 }}
+            className="hover:bg-slate-50 transition-colors"
           >
             <ListItemText
               primary={
                 <>
-                  <Box display="flex" justifyContent="space-between" alignItems="start">
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        display={"flex"}
-                        component="span"
-                        sx={{ fontWeight: "bold" }}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-base">{project.projectName}</p>
+                      <p className="text-sm text-slate-500">{project.description || "No description available."}</p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        className="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-1.5 rounded-md transition-colors"
+                        onClick={() => router.push(`/admin/health-projects/${project.id}`)}
                       >
-                        {project.projectName}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary" paragraph>
-                        {project.description || "No description available."}
-                      </Typography>
-                    </Box>
-                    <Box display={"flex"} gap={2}>
-                      <Button variant="contained" color="primary">
                         View Participants
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => {
-                          setSelectedProject(project)
-                          handleOpen()
-                        }}
+                      </button>
+                      <button
+                        className="bg-green-600 hover:bg-green-500 text-white text-xs px-3 py-1.5 rounded-md transition-colors disabled:opacity-50 flex items-center gap-1"
+                        onClick={() => { setLoadingId(project.id); router.push(`/admin/health-projects/${project.id}/edit`) }}
+                        disabled={loadingId === project.id}
                       >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="error"
+                        {loadingId === project.id ? <><i className="bx bx-loader-alt animate-spin" />Loading</> : "Edit"}
+                      </button>
+                      <button
+                        className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1.5 rounded-md transition-colors"
                         onClick={async () => {
                           const result = await Swal.fire({
                             icon: "warning",
@@ -117,31 +88,23 @@ export default function HealthProjectList() {
                         }}
                       >
                         Delete
-                      </Button>
-                    </Box>
-                  </Box>
+                      </button>
+                    </div>
+                  </div>
                 </>
               }
               primaryTypographyProps={{ fontWeight: "bold" }}
               secondary={
                 <>
-                  <Typography variant="body2" color="textSecondary">
-                    <strong>Start Date:</strong>{" "}
-                    {new Intl.DateTimeFormat(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }).format(new Date(project.startDate))}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    <strong>End Date:</strong>{" "}
-                    {new Intl.DateTimeFormat(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    }).format(new Date(project.endDate))}
-                  </Typography>
-                  <Box sx={{ marginTop: 1 }}>
+                  <p className="text-sm text-slate-500">
+                    <strong>Start:</strong>{" "}
+                    {new Intl.DateTimeFormat(undefined, { year: "numeric", month: "long", day: "numeric" }).format(new Date(project.startDate))}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    <strong>End:</strong>{" "}
+                    {new Intl.DateTimeFormat(undefined, { year: "numeric", month: "long", day: "numeric" }).format(new Date(project.endDate))}
+                  </p>
+                  <div className="mt-2">
                     <strong>Target Health Statuses: </strong>
 
                     {project.healthStatuses.map((status) => (
@@ -180,31 +143,13 @@ export default function HealthProjectList() {
                         }}
                       />
                     ))}
-                  </Box>
+                  </div>
                 </>
               }
             />
           </ListItem>
         ))}
       </List>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <div className="p-2">
-            <HealthProjectForm
-              project={selectedProject}
-              onSubmit={() => {
-                handleClose()
-                refetch()
-              }}
-            />
-          </div>
-        </Box>
-      </Modal>
-    </Box>
+    </div>
   )
 }

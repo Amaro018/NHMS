@@ -1,5 +1,4 @@
 "use client"
-import styles from "../../styles/Home.module.css"
 import logout from "../mutations/logout"
 import { useRouter } from "next/navigation"
 import { useMutation } from "@blitzjs/rpc"
@@ -10,7 +9,7 @@ export function LogoutButton() {
   return (
     <>
       <button
-        className={styles.button}
+        className="bg-red-600 hover:bg-red-500 text-white text-sm font-semibold px-3 py-1.5 rounded-md transition-colors"
         onClick={async () => {
           await logoutMutation()
           router.refresh()

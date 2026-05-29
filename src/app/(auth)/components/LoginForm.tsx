@@ -1,6 +1,7 @@
 "use client"
 import { AuthenticationError, PromiseReturnType } from "blitz"
 import Link from "next/link"
+import Image from "next/image"
 import { LabeledTextField } from "src/app/components/LabeledTextField"
 import { Form, FORM_ERROR } from "src/app/components/Form"
 import login from "../mutations/login"
@@ -18,16 +19,25 @@ export const LoginForm = (props: LoginFormProps) => {
   const [loginMutation] = useMutation(login)
   const router = useRouter()
   const next = useSearchParams()?.get("next")
+
   return (
-    <>
-      <div className="flex justify-center text-center mt-16">
-        <div className="w-1/4 bg-slate-600 py-8 rounded-t-lg">
-          <h1 className="text-3xl text-white uppercase font-mono font-bold">Admin Login</h1>
-        </div>
-      </div>
-      <div className="font-bold flex justify-center">
-        <div className="w-1/4 p-8 border border-slate-600 rounded-b-lg  flex flex-col justify-center text-center items-center">
-          <div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Header band */}
+          <div className="bg-slate-700 px-8 py-6 flex flex-col items-center gap-3">
+            <Image src="/logo3.png" alt="NHMS Logo" width={64} height={64} className="rounded-lg" />
+            <div className="text-center">
+              <h1 className="text-white text-xl font-bold tracking-wide">NHMS</h1>
+              <p className="text-slate-300 text-xs mt-0.5">Nagsiya Health Monitoring System</p>
+            </div>
+          </div>
+
+          {/* Form body */}
+          <div className="px-8 py-8">
+            <h2 className="text-slate-700 text-lg font-semibold mb-6">Sign in to your account</h2>
+
             <Form
               schema={Login}
               initialValues={{ email: "", password: "" }}
@@ -35,47 +45,53 @@ export const LoginForm = (props: LoginFormProps) => {
                 try {
                   await loginMutation(values)
                   router.refresh()
-                  if (next) {
-                    router.push(next as Route)
-                  } else {
-                    router.push("/admin")
-                    router.refresh()
-                    console.log("redirecting to dashboard")
-                  }
+                  router.push(next ? (next as Route) : "/admin")
                 } catch (error: any) {
                   if (error instanceof AuthenticationError) {
-                    return { [FORM_ERROR]: "Sorry, those credentials are invalid" }
-                  } else {
-                    return {
-                      [FORM_ERROR]:
-                        "Sorry, we had an unexpected error. Please try again. - " +
-                        error.toString(),
-                    }
+                    return { [FORM_ERROR]: "Invalid email or password." }
+                  }
+                  return {
+                    [FORM_ERROR]: "An unexpected error occurred. Please try again.",
                   }
                 }
               }}
             >
-              <LabeledTextField name="email" label="Email" placeholder="Email" />
+              <LabeledTextField
+                name="email"
+                label="Email address"
+                placeholder="admin@example.com"
+                type="email"
+              />
               <LabeledTextField
                 name="password"
                 label="Password"
-                placeholder="Password"
+                placeholder="••••••••"
                 type="password"
               />
-              <div>
-                <Link href={"/forgot-password"}>Forgot your password?</Link>
+
+              <div className="flex justify-end">
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-slate-500 hover:text-slate-700 transition-colors"
+                >
+                  Forgot password?
+                </Link>
               </div>
-              <button className="w-full bg-slate-600 p-4 rounded-md outline-2 shadow-lg hover:bg-slate-500 text-white">
-                Login
+
+              <button
+                type="submit"
+                className="w-full bg-slate-700 hover:bg-slate-600 active:bg-slate-800 text-white font-semibold py-2.5 rounded-lg transition-colors mt-2 shadow-sm"
+              >
+                Sign In
               </button>
             </Form>
           </div>
         </div>
-      </div>
 
-      {/* <div style={{ marginTop: "1rem" }}>
-        Or <Link href="/signup">Sign Up</Link>
-      </div> */}
-    </>
+        <p className="text-center text-slate-400 text-xs mt-6">
+          &copy; {new Date().getFullYear()} Brgy. Nagsiya &mdash; NHMS
+        </p>
+      </div>
+    </div>
   )
 }

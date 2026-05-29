@@ -126,7 +126,7 @@ export default function PieChart() {
   }, [healthStatusCounts, latestRecords])
 
   return (
-    <div className="w-full h-[700px] flex flex-col items-center p-8 mb-10">
+    <div className="w-full flex flex-col items-center p-4 md:p-8">
       <canvas ref={chartRef} className="w-full"></canvas>
       <div className="w-full flex flex-col items-center justify-center gap-4 p-4">
         <FormControl fullWidth>

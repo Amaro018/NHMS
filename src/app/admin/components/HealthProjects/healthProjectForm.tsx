@@ -18,8 +18,8 @@ export default function HealthProjectForm({ project, onSubmit }) {
   const [description, setDescription] = React.useState(project?.description || "")
   const [startDate, setStartDate] = React.useState(dayjs(project?.startDate) || dayjs())
   const [endDate, setEndDate] = React.useState(dayjs(project?.endDate) || dayjs())
-  const [targetHealthStatuses, setTargetHealthStatuses] = React.useState(
-    project?.targetHealthStatuses || []
+  const [targetHealthStatuses, setTargetHealthStatuses] = React.useState<string[]>(
+    project?.healthStatuses?.map((s) => s.statusName) || []
   )
 
   const [createProjectMutation] = useMutation(createHealthProject)
@@ -101,10 +101,7 @@ export default function HealthProjectForm({ project, onSubmit }) {
 
   return (
     <main>
-      <form className="flex flex-col space-y-4 p-4" onSubmit={handleSubmit}>
-        <Typography variant="h4" align="center" sx={{ fontWeight: "bold", color: "slategray" }}>
-          {project ? "Editing Barangay Health Project" : "Adding New Barangay Health Project"}
-        </Typography>
+      <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
         <TextField
           label="Project Name"
           variant="outlined"
@@ -145,7 +142,7 @@ export default function HealthProjectForm({ project, onSubmit }) {
           <Typography variant="h6" gutterBottom>
             Target Health Statuses:
           </Typography>
-          <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={1}>
+          <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={0.5}>
             {healthStatuses.map((status) => (
               <FormControlLabel
                 key={status}
@@ -161,8 +158,9 @@ export default function HealthProjectForm({ project, onSubmit }) {
             ))}
           </Box>
         </Box>
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          {project ? "Update" : "Save"}
+        <Button type="submit" variant="contained" fullWidth
+          sx={{ bgcolor: "#334155", "&:hover": { bgcolor: "#1e293b" }, py: 1.2, borderRadius: "8px", textTransform: "none", fontWeight: 600 }}>
+          {project ? "Save Changes" : "Add Project"}
         </Button>
       </form>
     </main>

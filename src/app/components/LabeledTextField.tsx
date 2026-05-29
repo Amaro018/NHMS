@@ -2,11 +2,8 @@ import { forwardRef, PropsWithoutRef } from "react"
 import { useField, useFormikContext, ErrorMessage } from "formik"
 
 export interface LabeledTextFieldProps extends PropsWithoutRef<JSX.IntrinsicElements["input"]> {
-  /** Field name. */
   name: string
-  /** Field label. */
   label: string
-  /** Field type. Doesn't include radio buttons and checkboxes */
   type?: "text" | "password" | "email" | "number"
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>
 }
@@ -17,36 +14,22 @@ export const LabeledTextField = forwardRef<HTMLInputElement, LabeledTextFieldPro
     const { isSubmitting } = useFormikContext()
 
     return (
-      <div {...outerProps}>
-        <label>
-          {label}
-          <input {...input} disabled={isSubmitting} {...props} ref={ref} />
-        </label>
-
+      <div className="flex flex-col gap-1 w-full" {...outerProps}>
+        <label className="text-sm font-medium text-slate-700">{label}</label>
+        <input
+          {...input}
+          {...props}
+          ref={ref}
+          disabled={isSubmitting}
+          className="w-full px-4 py-2.5 rounded-lg border border-slate-300 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent disabled:opacity-50 transition"
+        />
         <ErrorMessage name={name}>
           {(msg) => (
-            <div role="alert" style={{ color: "red" }}>
+            <span role="alert" className="text-red-500 text-xs mt-0.5">
               {msg}
-            </div>
+            </span>
           )}
         </ErrorMessage>
-
-        <style jsx>{`
-          label {
-            display: flex;
-            flex-direction: column;
-            align-items: start;
-            font-size: 1rem;
-          }
-          input {
-            font-size: 1rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 3px;
-            border: 1px solid purple;
-            appearance: none;
-            margin-top: 0.5rem;
-          }
-        `}</style>
       </div>
     )
   }

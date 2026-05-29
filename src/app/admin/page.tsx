@@ -1,15 +1,15 @@
 "use client"
-import React from "react"
-import Sidebar from "./components/Sidebar"
-import { useQuery } from "@blitzjs/rpc"
+import AdminNav from "./components/AdminNav"
 import AdminDashboard from "./components/AdminDashboard"
 
 export default function Dashboard() {
-  // Use useQuery to fetch the resident count
   return (
-    <div className="flex flex-col px-16 text-black bg-white dark:text-white dark:bg-black h-screen">
-      <Sidebar />
-      <AdminDashboard />
+    <div className="min-h-screen bg-slate-50 text-black">
+      <AdminNav />
+      <div className="px-4 md:px-8 lg:px-16 py-4">
+        <h1 className="text-xl font-bold text-slate-700 mb-4">Dashboard</h1>
+        <AdminDashboard />
+      </div>
     </div>
   )
 }
