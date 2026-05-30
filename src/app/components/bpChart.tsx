@@ -16,7 +16,7 @@ const BP_COLORS: Record<string, string> = {
 
 export default function BpChart() {
   const chartRef = useRef(null)
-  const [records] = useQuery(getResidentHealthRecords, {})
+  const [records] = useQuery(getResidentHealthRecords, {}, { refetchOnWindowFocus: false, staleTime: 60000 })
 
   const uniqueYears = [
     ...new Set(records.map((r) => new Date(r.dateOfCheckup).getFullYear())),

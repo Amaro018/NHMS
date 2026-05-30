@@ -7,7 +7,7 @@ import getResidentHealthRecords from "../queries/getResidentHealthRecords"
 
 export default function PieChart() {
   const chartRef = useRef(null)
-  const [records] = useQuery(getResidentHealthRecords, {})
+  const [records] = useQuery(getResidentHealthRecords, {}, { refetchOnWindowFocus: false, staleTime: 60000 })
 
   const uniqueYears = [
     ...new Set(records.map((record) => new Date(record.dateOfCheckup).getFullYear())),
