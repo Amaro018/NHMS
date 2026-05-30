@@ -11,6 +11,7 @@ services:
       - "3005:3000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      SESSION_SECRET_KEY: ${SESSION_SECRET_KEY}
       NODE_ENV: production
     networks:
       - mariadb_mariadb_network
