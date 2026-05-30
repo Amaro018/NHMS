@@ -13,11 +13,11 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       NODE_ENV: production
     networks:
-      - mariadb_network
-      - cloudflare_network
+      - mariadb_mariadb_network
+      - cloudflare_net
 
 networks:
-  mariadb_network:
+  mariadb_mariadb_network:
     external: true
-  cloudflare_network:
+  cloudflare_net:
     external: true
