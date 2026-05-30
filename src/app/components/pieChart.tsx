@@ -6,152 +6,90 @@ import { useQuery } from "@blitzjs/rpc"
 import getResidentHealthRecords from "../queries/getResidentHealthRecords"
 
 export default function PieChart() {
-  const chartRef = useRef(null)
+  const chartRef = useRef<HTMLCanvasElement>(null)
   const [records = [], { isLoading }] = useQuery(getResidentHealthRecords, {}, {
     suspense: false,
     refetchOnWindowFocus: false,
     staleTime: 60000,
   })
 
-  const uniqueYears = [
-    ...new Set(records.map((record) => new Date(record.dateOfCheckup).getFullYear())),
-  ].sort((a, b) => b - a)
+  const uniqueYears = [...new Set(records.map((r) => new Date(r.dateOfCheckup).getFullYear()))].sort((a, b) => b - a)
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined)
 
-  const [selectedYear, setSelectedYear] = useState(uniqueYears[0])
-
-  const uniqueResidents = [...new Set(records.map((record) => record.residentId))]
-
-  const latestRecords = uniqueResidents
-    .map((residentId) => {
-      const residentRecords = records.filter(
-        (record) =>
-          record.residentId === residentId &&
-          new Date(record.dateOfCheckup).getFullYear() === selectedYear
-      )
-      return residentRecords.length > 0 ? residentRecords[0] : null
-    })
-    .filter(Boolean)
-
-  const healthStatusCounts = {
-    normalWeight: 0,
-    underweight: 0,
-    overweight: 0,
-    obese: 0,
-    classIObese: 0,
-    classIIObese: 0,
-    classIIIObese: 0,
-  }
-
-  latestRecords.forEach((record) => {
-    if (record.healthStatus === "Normal weight") healthStatusCounts.normalWeight += 1
-    else if (record.healthStatus === "Underweight") healthStatusCounts.underweight += 1
-    else if (record.healthStatus === "Overweight") healthStatusCounts.overweight += 1
-    else if (record.healthStatus === "Obese") healthStatusCounts.obese += 1
-    else if (record.healthStatus === "Class I Obese") healthStatusCounts.classIObese += 1
-    else if (record.healthStatus === "Class II Obese") healthStatusCounts.classIIObese += 1
-    else if (record.healthStatus === "Class III Obese") healthStatusCounts.classIIIObese += 1
-  })
+  const activeYear = selectedYear ?? uniqueYears[0]
 
   useEffect(() => {
     if (!chartRef.current) return
+
     const ctx = chartRef.current.getContext("2d")
+    if (!ctx) return
+
+    const uniqueResidents = [...new Set(records.map((r) => r.residentId))]
+    const latestRecords = uniqueResidents
+      .map((id) => {
+        const res = records.filter(
+          (r) => r.residentId === id && new Date(r.dateOfCheckup).getFullYear() === activeYear
+        )
+        return res[0] ?? null
+      })
+      .filter(Boolean)
 
     if (latestRecords.length === 0) {
-      ctx.font = "20px Arial"
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      ctx.font = "16px Arial"
       ctx.textAlign = "center"
+      ctx.fillStyle = "#94a3b8"
       ctx.fillText("No records available", ctx.canvas.width / 2, ctx.canvas.height / 2)
       return
     }
 
-    const pieChart = new Chart(ctx, {
+    const counts = { normalWeight: 0, underweight: 0, overweight: 0, obese: 0, classIObese: 0, classIIObese: 0, classIIIObese: 0 }
+    latestRecords.forEach((r) => {
+      if (r.healthStatus === "Normal weight") counts.normalWeight++
+      else if (r.healthStatus === "Underweight") counts.underweight++
+      else if (r.healthStatus === "Overweight") counts.overweight++
+      else if (r.healthStatus === "Obese") counts.obese++
+      else if (r.healthStatus === "Class I Obese") counts.classIObese++
+      else if (r.healthStatus === "Class II Obese") counts.classIIObese++
+      else if (r.healthStatus === "Class III Obese") counts.classIIIObese++
+    })
+
+    const chart = new Chart(ctx, {
       type: "pie",
       data: {
-        labels: [
-          "Normal weight",
-          "Underweight",
-          "Overweight",
-          "Obese",
-          "Class I Obese",
-          "Class II Obese",
-          "Class III Obese",
-        ],
-        datasets: [
-          {
-            label: "Health Status",
-            data: [
-              healthStatusCounts.normalWeight,
-              healthStatusCounts.underweight,
-              healthStatusCounts.overweight,
-              healthStatusCounts.obese,
-              healthStatusCounts.classIObese,
-              healthStatusCounts.classIIObese,
-              healthStatusCounts.classIIIObese,
-            ],
-            backgroundColor: [
-              "#34C759",
-              "#F7DC6F",
-              "#FFC107",
-              "#FF9800",
-              "#FF5722",
-              "#FF3222",
-              "#FF0022",
-            ],
-            hoverOffset: 4,
-          },
-        ],
+        labels: ["Normal weight", "Underweight", "Overweight", "Obese", "Class I Obese", "Class II Obese", "Class III Obese"],
+        datasets: [{
+          label: "Health Status",
+          data: [counts.normalWeight, counts.underweight, counts.overweight, counts.obese, counts.classIObese, counts.classIIObese, counts.classIIIObese],
+          backgroundColor: ["#34C759", "#F7DC6F", "#FFC107", "#FF9800", "#FF5722", "#FF3222", "#FF0022"],
+          hoverOffset: 4,
+        }],
       },
       options: {
         plugins: {
-          legend: {
-            display: true,
-            position: "top",
-            align: "center",
-            labels: {
-              boxWidth: 30,
-              padding: 4,
-              usePointStyle: true,
-            },
-          },
-        },
-        animations: {
-          tension: {
-            duration: 1000,
-            easing: "linear",
-            from: 1,
-            to: 0,
-            loop: true,
-          },
+          legend: { display: true, position: "top", align: "center", labels: { boxWidth: 30, padding: 4, usePointStyle: true } },
         },
       },
     })
 
-    return () => {
-      pieChart.destroy()
-    }
-  }, [healthStatusCounts, latestRecords])
+    return () => chart.destroy()
+  }, [records, activeYear])
 
   if (isLoading) return <div className="py-16 text-slate-400 text-sm">Loading chart...</div>
 
   return (
     <div className="w-full flex flex-col items-center p-4 md:p-8">
-      <canvas ref={chartRef} className="w-full"></canvas>
+      <canvas ref={chartRef} className="w-full" />
       <div className="w-full flex flex-col items-center justify-center gap-4 p-4">
         <FormControl fullWidth>
-          <InputLabel variant="standard" htmlFor="uncontrolled-native">
-            See Records for Year
-          </InputLabel>
+          <InputLabel variant="standard" htmlFor="pie-year">See Records for Year</InputLabel>
           <NativeSelect
-            defaultValue={selectedYear}
-            inputProps={{
-              name: "Year",
-              id: "uncontrolled-native",
-            }}
+            defaultValue={activeYear}
+            inputProps={{ name: "Year", id: "pie-year" }}
             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
           >
             {uniqueYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
+              <option key={year} value={year}>{year}</option>
             ))}
           </NativeSelect>
         </FormControl>

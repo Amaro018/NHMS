@@ -14,55 +14,36 @@ const BP_COLORS: Record<string, string> = {
   "Hypertensive Crisis": "#991b1b",
 }
 
+const BP_LABELS = ["Hypotension", "Normal", "Elevated", "Hypertension Stage 1", "Hypertension Stage 2", "Hypertensive Crisis"]
+
 export default function BpChart() {
-  const chartRef = useRef(null)
+  const chartRef = useRef<HTMLCanvasElement>(null)
   const [records = [], { isLoading }] = useQuery(getResidentHealthRecords, {}, {
     suspense: false,
     refetchOnWindowFocus: false,
     staleTime: 60000,
   })
 
-  const uniqueYears = [
-    ...new Set(records.map((r) => new Date(r.dateOfCheckup).getFullYear())),
-  ].sort((a, b) => b - a)
+  const uniqueYears = [...new Set(records.map((r) => new Date(r.dateOfCheckup).getFullYear()))].sort((a, b) => b - a)
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined)
 
-  const [selectedYear, setSelectedYear] = useState(uniqueYears[0])
-
-  const uniqueResidents = [...new Set(records.map((r) => r.residentId))]
-
-  const latestRecords = uniqueResidents
-    .map((residentId) => {
-      const residentRecords = records.filter(
-        (r) =>
-          r.residentId === residentId &&
-          new Date(r.dateOfCheckup).getFullYear() === selectedYear
-      )
-      return residentRecords.length > 0 ? residentRecords[0] : null
-    })
-    .filter(Boolean)
-
-  const counts: Record<string, number> = {
-    Hypotension: 0,
-    Normal: 0,
-    Elevated: 0,
-    "Hypertension Stage 1": 0,
-    "Hypertension Stage 2": 0,
-    "Hypertensive Crisis": 0,
-  }
-
-  latestRecords.forEach((r) => {
-    if (r.bloodPressureStatus && counts[r.bloodPressureStatus] !== undefined) {
-      counts[r.bloodPressureStatus]++
-    }
-  })
-
-  const labels = Object.keys(counts)
-  const data = Object.values(counts)
-  const colors = labels.map((l) => BP_COLORS[l])
+  const activeYear = selectedYear ?? uniqueYears[0]
 
   useEffect(() => {
     if (!chartRef.current) return
+
     const ctx = chartRef.current.getContext("2d")
+    if (!ctx) return
+
+    const uniqueResidents = [...new Set(records.map((r) => r.residentId))]
+    const latestRecords = uniqueResidents
+      .map((id) => {
+        const res = records.filter(
+          (r) => r.residentId === id && new Date(r.dateOfCheckup).getFullYear() === activeYear
+        )
+        return res[0] ?? null
+      })
+      .filter(Boolean)
 
     if (latestRecords.length === 0) {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
@@ -73,25 +54,33 @@ export default function BpChart() {
       return
     }
 
+    const counts: Record<string, number> = Object.fromEntries(BP_LABELS.map((l) => [l, 0]))
+    latestRecords.forEach((r) => {
+      if (r.bloodPressureStatus && counts[r.bloodPressureStatus] !== undefined) {
+        counts[r.bloodPressureStatus]++
+      }
+    })
+
     const chart = new Chart(ctx, {
       type: "pie",
       data: {
-        labels,
-        datasets: [{ label: "BP Status", data, backgroundColor: colors, hoverOffset: 4 }],
+        labels: BP_LABELS,
+        datasets: [{
+          label: "BP Status",
+          data: BP_LABELS.map((l) => counts[l]),
+          backgroundColor: BP_LABELS.map((l) => BP_COLORS[l]),
+          hoverOffset: 4,
+        }],
       },
       options: {
         plugins: {
-          legend: {
-            display: true,
-            position: "top",
-            labels: { boxWidth: 28, padding: 6, usePointStyle: true },
-          },
+          legend: { display: true, position: "top", labels: { boxWidth: 28, padding: 6, usePointStyle: true } },
         },
       },
     })
 
     return () => chart.destroy()
-  }, [counts, latestRecords])
+  }, [records, activeYear])
 
   if (isLoading) return <div className="py-16 text-slate-400 text-sm">Loading chart...</div>
 
@@ -100,11 +89,9 @@ export default function BpChart() {
       <canvas ref={chartRef} className="w-full" />
       <div className="w-full flex flex-col items-center justify-center gap-4 p-4">
         <FormControl fullWidth>
-          <InputLabel variant="standard" htmlFor="bp-year">
-            See Records for Year
-          </InputLabel>
+          <InputLabel variant="standard" htmlFor="bp-year">See Records for Year</InputLabel>
           <NativeSelect
-            defaultValue={selectedYear}
+            defaultValue={activeYear}
             inputProps={{ name: "Year", id: "bp-year" }}
             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
           >
