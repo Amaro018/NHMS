@@ -7,7 +7,13 @@ import getResidentHealthRecords from "../queries/getResidentHealthRecords"
 
 export default function PieChart() {
   const chartRef = useRef(null)
-  const [records] = useQuery(getResidentHealthRecords, {}, { refetchOnWindowFocus: false, staleTime: 60000 })
+  const [records = [], { isLoading }] = useQuery(getResidentHealthRecords, {}, {
+    suspense: false,
+    refetchOnWindowFocus: false,
+    staleTime: 60000,
+  })
+
+  if (isLoading) return <div className="py-16 text-slate-400 text-sm">Loading chart...</div>
 
   const uniqueYears = [
     ...new Set(records.map((record) => new Date(record.dateOfCheckup).getFullYear())),

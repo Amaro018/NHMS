@@ -16,7 +16,13 @@ const BP_COLORS: Record<string, string> = {
 
 export default function BpChart() {
   const chartRef = useRef(null)
-  const [records] = useQuery(getResidentHealthRecords, {}, { refetchOnWindowFocus: false, staleTime: 60000 })
+  const [records = [], { isLoading }] = useQuery(getResidentHealthRecords, {}, {
+    suspense: false,
+    refetchOnWindowFocus: false,
+    staleTime: 60000,
+  })
+
+  if (isLoading) return <div className="py-16 text-slate-400 text-sm">Loading chart...</div>
 
   const uniqueYears = [
     ...new Set(records.map((r) => new Date(r.dateOfCheckup).getFullYear())),
