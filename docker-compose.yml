@@ -9,8 +9,9 @@ services:
     restart: unless-stopped
     expose:
       - "3000"
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: mysql://root:amaro071318@mariadb:3306/nhms
       NODE_ENV: production
     networks:
       - mariadb_network
