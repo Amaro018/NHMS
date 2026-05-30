@@ -18,7 +18,7 @@ const BP_LABELS = ["Hypotension", "Normal", "Elevated", "Hypertension Stage 1", 
 
 export default function BpChart() {
   const chartRef = useRef<HTMLCanvasElement>(null)
-  const [records = [], { isLoading }] = useQuery(getResidentHealthRecords, {}, {
+  const [records = []] = useQuery(getResidentHealthRecords, {}, {
     suspense: false,
     refetchOnWindowFocus: false,
     staleTime: 60000,
@@ -81,8 +81,6 @@ export default function BpChart() {
 
     return () => chart.destroy()
   }, [records, activeYear])
-
-  if (isLoading) return <div className="py-16 text-slate-400 text-sm">Loading chart...</div>
 
   return (
     <div className="w-full flex flex-col items-center p-4 md:p-8">
