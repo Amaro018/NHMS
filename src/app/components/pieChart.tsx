@@ -13,8 +13,6 @@ export default function PieChart() {
     staleTime: 60000,
   })
 
-  if (isLoading) return <div className="py-16 text-slate-400 text-sm">Loading chart...</div>
-
   const uniqueYears = [
     ...new Set(records.map((record) => new Date(record.dateOfCheckup).getFullYear())),
   ].sort((a, b) => b - a)
@@ -130,6 +128,8 @@ export default function PieChart() {
       pieChart.destroy()
     }
   }, [healthStatusCounts, latestRecords])
+
+  if (isLoading) return <div className="py-16 text-slate-400 text-sm">Loading chart...</div>
 
   return (
     <div className="w-full flex flex-col items-center p-4 md:p-8">
