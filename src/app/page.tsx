@@ -4,6 +4,7 @@ import PieChart from "./components/pieChart"
 import BpChart from "./components/bpChart"
 import getPublicStats from "./queries/getPublicStats"
 import Link from "next/link"
+import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
@@ -61,11 +62,15 @@ export default async function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2">
           <div className="flex flex-col items-center p-4 border-b lg:border-b-0 lg:border-r border-slate-200">
             <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide pt-4">BMI / Weight Status</p>
-            <PieChart />
+            <Suspense fallback={<div className="py-16 text-slate-400 text-sm">Loading chart...</div>}>
+              <PieChart />
+            </Suspense>
           </div>
           <div className="flex flex-col items-center p-4">
             <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide pt-4">Blood Pressure Status</p>
-            <BpChart />
+            <Suspense fallback={<div className="py-16 text-slate-400 text-sm">Loading chart...</div>}>
+              <BpChart />
+            </Suspense>
           </div>
         </div>
       </section>
