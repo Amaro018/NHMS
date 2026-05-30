@@ -53,6 +53,7 @@ export default function PieChart() {
   })
 
   useEffect(() => {
+    if (!chartRef.current) return
     const ctx = chartRef.current.getContext("2d")
 
     if (latestRecords.length === 0) {
